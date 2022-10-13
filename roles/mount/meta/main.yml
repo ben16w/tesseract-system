@@ -1,0 +1,4 @@
+---
+
+dependencies:
+  - role: tesseract.system.base

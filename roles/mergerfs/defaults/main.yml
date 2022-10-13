@@ -1,0 +1,7 @@
+---
+
+mergerfs_disks: []
+mergerfs_mountpoint: /media/storage
+
+mergerfs_version: "2.33.5"
+mergerfs_min_free_space: 4G

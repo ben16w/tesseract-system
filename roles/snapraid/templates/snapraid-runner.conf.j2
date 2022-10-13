@@ -1,0 +1,34 @@
+[snapraid]
+executable = /usr/local/bin/snapraid
+config = /etc/snapraid.conf
+; abort operation if there are more deletes than this, set to -1 to disable
+deletethreshold = {{ snapraid_delete_threshold }}
+touch = true
+
+[logging]
+file = /var/log/snapraid.log
+maxsize = 5000
+
+[email]
+; when to send an email, comma-separated list of [success, error]
+sendon = error
+; set to false to get full programm output via email
+short = true
+subject = [SnapRAID] - {{ inventory_hostname }} - Status Report:
+from = {{ email_username }}
+to = {{ email_username }}
+; maximum email size in KiB
+maxsize = 500
+
+[smtp]
+host = {{ email_host }}
+port = {{ email_port }}
+ssl = true
+tls = false
+user = {{ email_username }}
+password = {{ email_password }}
+
+[scrub]
+enabled = true
+percentage = 5
+older-than = 14

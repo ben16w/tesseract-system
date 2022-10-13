@@ -1,0 +1,64 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - disk_password is not none
+
+- name: Install software.
+  ansible.builtin.apt:
+    pkg:
+      - cryptsetup
+
+- name: Make sure disk mount paths exists.
+  with_items: "{{ disk_mounts }}"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: 0755
+
+# - name: Using password for decrypting.
+#   when: disk_password is defined and disk_mounts | length > 0
+#   block:
+  # Has an error when it remounts
+  # - name: Decrypt storage disks.
+  #   with_items: "{{ disk_mounts }}"
+  #   when: disk_mounts | length > 0
+  #   #no_log: true
+  #   community.crypto.luks_device:
+  #     uuid: "{{ item.uuid }}"
+  #     #device: "/dev/disk/by-uuid/{{ item.uuid }}"
+  #     state: "opened"
+  #     name: "luks-{{ item.path | basename }}"
+  #     passphrase: "{{ storage_password }}"
+- name: Decrypt disks. # Doing it this way as above doesn't work
+  with_items: "{{ disk_mounts }}"
+  no_log: true
+  ansible.builtin.shell:
+    cmd: >
+      echo -n "{{ disk_password }}" |
+      cryptsetup luksOpen "/dev/disk/by-uuid/{{ item.uuid }}" "luks-{{ item.path | basename }}"
+    creates: "/dev/mapper/luks-{{ item.path | basename }}"
+
+- name: Mount disks.
+  with_items: "{{ disk_mounts }}"
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "/dev/mapper/luks-{{ item.path | basename }}"
+    fstype: ext4
+    opts: user,rw,noatime,noauto,exec
+    boot: false
+    state: mounted
+
+# - name: Not using password for decrypting.
+#   when: disk_password == ~ and disk_mounts | length > 0
+#   block:
+  # - name: Mount disks.
+  #   with_items: "{{ disk_mounts }}"
+  #   ansible.posix.mount:
+  #     path: "{{ item.path }}"
+  #     src: "/dev/disk/by-uuid/{{ item.uuid }}"
+  #     fstype: ext4
+  #     opts: user,rw,noatime,noauto,exec
+  #     boot: false
+  #     state: mounted

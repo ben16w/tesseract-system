@@ -1,0 +1,119 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - email_username is not none
+      - email_host is not none
+      - email_port is not none
+      - email_password is not none
+
+- name: Install C Compiler with package manager.
+  ansible.builtin.package:
+    name: gcc
+    state: present
+    update_cache: true
+
+- name: Ensure snapraid directory exists.
+  ansible.builtin.file:
+    path: /var/snapraid/
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Check if snapraid is installed.
+  ansible.builtin.stat:
+    path: /usr/local/bin/snapraid
+  register: is_snapraid_installed
+
+- name: Download and extract snapraid archive into tmp directory.
+  ansible.builtin.unarchive:
+    src: "https://github.com/amadvance/snapraid/\
+      releases/download/v{{ snapraid_version }}/snapraid-{{ snapraid_version }}.tar.gz"
+    dest: /tmp
+    remote_src: true
+    creates: /tmp/snapraid-{{ snapraid_version }}
+  when: not is_snapraid_installed.stat.exists
+
+- name: Configure Snapraid install.
+  ansible.builtin.command:
+    cmd: ./configure
+    chdir: /tmp/snapraid-{{ snapraid_version }}
+    creates: /tmp/snapraid-{{ snapraid_version }}/Makefile
+  when: not is_snapraid_installed.stat.exists
+
+- name: Make Snapraid.
+  ansible.builtin.command:
+    cmd: make
+    chdir: /tmp/snapraid-{{ snapraid_version }}
+    creates: /tmp/snapraid-{{ snapraid_version }}/snapraid
+  when: not is_snapraid_installed.stat.exists
+
+- name: Make check Snapraid.
+  ansible.builtin.command:
+    cmd: make check
+    chdir: /tmp/snapraid-{{ snapraid_version }}
+    creates: /tmp/snapraid-{{ snapraid_version }}/test.log
+  when: not is_snapraid_installed.stat.exists
+
+- name: Install Snapraid.
+  ansible.builtin.command:
+    cmd: make install
+    chdir: /tmp/snapraid-{{ snapraid_version }}
+    creates: /usr/local/bin/snapraid
+  when: not is_snapraid_installed.stat.exists
+
+- name: Template snapraid configuration file.
+  ansible.builtin.template:
+    src: templates/snapraid.conf.j2
+    dest: /etc/snapraid.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Ensure snapraid-runner directory exists.
+  ansible.builtin.file:
+    path: /opt/snapraid-runner
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Clone snapraid-runner git repo to directory.
+  ansible.builtin.git:
+    repo: https://github.com/Chronial/snapraid-runner.git
+    dest: /opt/snapraid-runner
+    version: master
+
+- name: Template snapraid-runner configuration file.
+  ansible.builtin.template:
+    src: templates/snapraid-runner.conf.j2
+    dest: /opt/snapraid-runner/snapraid-runner.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Make sure data disks paths exist.
+  with_items: "{{ snapraid_data_disks }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+
+- name: Make sure parity disks paths exist.
+  with_items: "{{ snapraid_parity_disks }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+
+- name: Add cron job for snapraid-runner.
+  ansible.builtin.cron:
+    name: "Snapraid runner."
+    minute: "0"
+    hour: "4,12,20"
+    job: >
+      python3 /opt/snapraid-runner/snapraid-runner.py
+      --conf /opt/snapraid-runner/snapraid-runner.conf
+  when: snapraid_parity_disks | length > 0 and snapraid_data_disks | length > 0 

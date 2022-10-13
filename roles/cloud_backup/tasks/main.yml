@@ -1,0 +1,84 @@
+---
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - bb_key_id is not none
+      - bb_key is not none
+      - bb_backup_password is not none
+
+- name: Add an Apt signing key for Kopia.
+  ansible.builtin.apt_key:
+    url: https://kopia.io/signing-key
+
+- name: Add Kopia repository into sources list.
+  ansible.builtin.apt_repository:
+    repo: deb http://packages.kopia.io/apt/ stable main
+    state: present
+    update_cache : true
+
+- name: Install Kopia and fuse.
+  ansible.builtin.package:
+    name:
+      - kopia
+      - fuse
+    state: present
+
+- name: Copy kopia_backup.sh.
+  ansible.builtin.template:
+    src: templates/kopia_backup.sh.j2
+    dest: "{{ files_path }}/scripts/kopia_backup.sh"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Connect Kopia repo.
+  register: result
+  changed_when: "'Connected to repository' in result.stdout"
+  #no_log: true
+  ansible.builtin.command:
+    cmd: >
+      kopia repository connect b2
+      --bucket={{ bb_bucket }}
+      --key-id={{ bb_key_id }}
+      --key={{ bb_key }}
+      --password={{ bb_backup_password }}
+
+#kopia policy set --compression=zstd path
+#kopia policy set --global \
+#--add-never-compress ".zip" \
+# It's possible to specify targets, like appdata
+# [<target>]  Target of a policy ('global','user@host','@host') or a path
+
+- name: Set Kopia policies for paths.
+  ansible.builtin.command:
+    cmd: >
+      kopia policy set
+      --keep-hourly 0
+      --keep-daily {{ item.keep_days|default("0", true) }}
+      --keep-weekly {{ item.keep_weeks|default("0", true) }}
+      --keep-monthly {{ item.keep_months|default("0", true) }}
+      --keep-annual {{ item.keep_years|default("0", true) }}
+      --keep-latest {{ item.keep_latest|default("8", true) }}
+      {{ item.path }}
+  with_items: "{{ cloud_backup_paths }}"
+  when: cloud_backup_paths | length > 0
+
+- name: Initialize an empty string for Kopia backup paths.
+  ansible.builtin.set_fact:
+    kopia_backup_paths: ""
+  when: cloud_backup_paths | length > 0
+
+- name: Generate string of Kopia backup paths.
+  ansible.builtin.set_fact:
+    kopia_backup_paths: "{{ kopia_backup_paths }} {{ item.path }}"
+  with_items: "{{ cloud_backup_paths }}"
+  when: cloud_backup_paths | length > 0
+
+- name:  Add paths for backup to cron.
+  ansible.builtin.cron:
+    name: "Kopia backup."
+    minute: "0"
+    hour: "0"
+    #job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
+    job: "bash {{ files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
+  when: cloud_backup_paths | length > 0

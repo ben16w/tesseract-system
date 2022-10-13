@@ -1,0 +1,10 @@
+---
+
+tesseract_username: tesseract
+
+shares: []
+
+shares_path: "/media/shares"
+
+shares_host: ~
+samba_password: ~

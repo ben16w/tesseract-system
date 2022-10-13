@@ -1,0 +1,12 @@
+---
+
+snapraid_parity_disks: []
+snapraid_data_disks: []
+
+snapraid_version: "12.1"
+snapraid_delete_threshold: 100
+
+email_username: ~
+email_host: ~
+email_port: ~
+email_password: ~

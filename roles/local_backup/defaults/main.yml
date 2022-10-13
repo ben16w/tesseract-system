@@ -1,0 +1,12 @@
+---
+
+log_file: /var/log/tesseract.log
+files_path: /root
+
+local_backup_paths: []
+
+local_backup_destination: /media/backups
+
+local_backups_daily: 4
+local_backups_weekly: 3
+local_backups_monthly: 2

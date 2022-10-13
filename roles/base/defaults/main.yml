@@ -1,0 +1,15 @@
+---
+
+admin_username: admin
+admin_password: ~
+
+tesseract_username: tesseract
+tesseract_password: ~
+
+log_file: "/var/log/tesseract.log"
+files_path: "/root"
+
+email_host: ~
+email_port: ~
+email_username: ~
+email_password: ~

@@ -1,0 +1,29 @@
+
+{% for parity_disk in snapraid_parity_disks %}
+parity {{ parity_disk }}/snapraid.parity
+{% endfor %}
+
+content /var/snapraid/snapraid.content
+{% for data_disk in snapraid_data_disks %}
+content {{ data_disk }}/snapraid.content
+{% endfor %}
+
+{% for data_disk in snapraid_data_disks %}
+disk {{ data_disk | basename }} {{ data_disk }}
+{% endfor %}
+
+exclude /Downloads/incomplete/
+
+exclude *.unrecoverable
+exclude /lost+found/
+exclude *.!sync
+exclude .AppleDouble
+exclude ._AppleDouble
+exclude .DS_Store
+exclude ._.DS_Store
+exclude .Thumbs.db
+exclude .fseventsd
+exclude .Spotlight-V100
+exclude .TemporaryItems
+exclude .Trashes
+exclude .AppleDB

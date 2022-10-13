@@ -1,0 +1,31 @@
+[global]
+  server string = Tesseract File Server
+  server role = standalone server
+  #interfaces = {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}/24
+  bind interfaces only = yes
+  disable netbios = yes
+  workgroup = WORKGROUP
+  smb ports = 445
+  security = user
+  invalid users = root
+  #force create mode = 0660
+  #force directory mode = 2770
+  guest ok = no
+  browsable = yes
+  map to guest = Never
+  log file = /var/log/samba/%m
+  log level = 3 passdb:5 auth:5
+  max log size = 10000
+  case sensitive = yes
+  preserve case = yes
+  #mangle case = no
+  mangled names = no
+
+{% for item in samaba_dirs.files %}
+[{{ item.path | basename }}]
+  path = "{{ item.path }}"
+  valid users = {{ tesseract_username }}
+  read only = no
+
+{% endfor %}
+

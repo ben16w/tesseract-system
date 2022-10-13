@@ -1,0 +1,214 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - admin_password is not none
+      - tesseract_password is not none
+      - email_host is not none
+      - email_port is not none
+      - email_username is not none
+      - email_password is not none
+
+# Expand root to use all disk space?
+
+- name: Set hostname.
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+# WARN this can match more than 1 ip
+- name: Set hosts in /etc/host.
+  lineinfile:
+    path: /etc/hosts
+    search_string: "{{ item }}"
+    line: "{% for ip in hostvars[item]['ansible_all_ipv4_addresses'] %}\
+      {% if '192.168.1.' in ip %}\
+      {{ ip  }} {{ item }}\
+      {% endif %}\
+      {% endfor %}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ groups.all }}"
+  when: hostvars[item]['ansible_all_ipv4_addresses'] is defined and item != inventory_hostname
+
+- name: Set localhost entry in /etc/host.
+  lineinfile:
+    path: /etc/hosts
+    search_string: "{{ inventory_hostname }}"
+    line: "127.0.0.1 {{ inventory_hostname }}"
+    owner: root
+    group: root
+    mode: 0644
+
+# Set date and time?
+
+# - name: Reduce GPU memory to 16MB.
+#   ansible.builtin.lineinfile:
+#     path: /boot/firmware/config.txt
+#     line: "gpu_mem=16"
+
+# - name: Overclock the CPU a bit.
+#   blockinfile:
+#     path: /boot/firmware/config.txt
+#     block: |
+#       over_voltage=2
+#       arm_freq=1750
+
+#- name: Remove swap file
+#  command: dphys-swapfile swapoff
+#  command: dphys-swapfile uninstall
+#  command: systemctl disable dphys-swapfile
+# Swapfile?
+
+- name: Update & upgrade OS.
+  ansible.builtin.apt:
+    upgrade: full 
+    update_cache: true
+    cache_valid_time: 21600 # 6 Hours
+
+- name: Install common software.
+  ansible.builtin.apt:
+    pkg:
+      - python3-setuptools
+      - python3-pip
+      - ntp
+      - net-tools
+      - rsync
+      - unzip
+      - msmtp
+      - git
+      - zip
+      - wakeonlan
+
+- name: Install setuptools using pip.
+  pip:
+    name:
+      - setuptools
+
+- name: Set nano as default editor for root.
+  lineinfile:
+    path: /root/.selected_editor
+    search_string: SELECTED_EDITOR=
+    line: SELECTED_EDITOR="/bin/nano"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Set admin user.
+  ansible.builtin.user:
+    name: "{{ admin_username }}"
+    comment: "admin user"
+    shell: /bin/bash
+    #group: admin
+    groups:
+      - sudo
+    append: true
+    generate_ssh_key: true
+    password: "{{ admin_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
+
+- name: Ensure tesseract group exists.
+  ansible.builtin.group:
+    name: "{{ tesseract_username }}"
+    state: present
+
+- name: Set tesseract user.
+  ansible.builtin.user:
+    name: "{{ tesseract_username }}"
+    comment: "tesseract user"
+    shell: /bin/bash
+    group: tesseract
+    generate_ssh_key: false
+    password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
+
+- name: Make sure tesseract is removed from sudoers.
+  ansible.builtin.command:
+    cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
+  register: grp_change
+  failed_when: grp_change.rc not in [0, 6]
+  changed_when: grp_change.rc == 0  
+
+- name: Remove pi sudoers file found on RPi.
+  notify: restart sshd
+  ansible.builtin.file:
+    path: /etc/sudoers.d/010_pi-nopasswd
+    state: absent
+
+- name: Disable root login.
+  notify: restart sshd
+  ansible.builtin.lineinfile: 
+    dest: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin' 
+    line: 'PermitRootLogin No'
+
+- name: Add SFTP server config.
+  no_log: true
+  notify: restart sshd
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      Match user {{ tesseract_username }}
+      ChrootDirectory /media
+      X11Forwarding no
+      AllowTcpForwarding no
+      ForceCommand internal-sftp
+
+- name: Add msmtp email global config.
+  no_log: true
+  ansible.builtin.blockinfile:
+    path: /etc/msmtprc
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      account default
+      tls on
+      tls_starttls off
+      tls_certcheck off
+      auth login
+      host "{{ email_host }}"
+      port "{{ email_port }}"
+      user "{{ email_username }}"
+      from "{{ email_username }}"
+      password "{{ email_password }}"
+
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy base script.
+  ansible.builtin.template:
+    src: templates/base.sh.j2
+    dest: "{{ files_path }}/scripts/base.sh"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Install fail2ban.
+  ansible.builtin.apt:
+    pkg:
+      - fail2ban
+
+- name: Template fail2ban configuration.
+  ansible.builtin.template:
+    src: templates/jail.local.j2
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Make sure fail2ban is enabled and started.
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

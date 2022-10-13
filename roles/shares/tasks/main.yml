@@ -1,0 +1,67 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - shares_host is not none
+      - samba_password is not none
+
+- name: Install samba software.
+  apt:
+    pkg:
+      - cifs-utils
+      - autofs
+
+- name: Ensure tesseract user exists and get info.
+  register: created_tesseract_user
+  user:
+    name: "{{ tesseract_username }}"
+
+- name: Make sure shares path exists.
+  ansible.builtin.file:
+    path: "{{ shares_path }}"
+    state: directory
+    mode: 0755
+
+- name: Generate autofs config for samba mounts.
+  notify: restart autofs
+  when: shares | length > 0
+  ansible.builtin.template:
+    src: templates/auto.tesseract.j2
+    dest: /etc/auto.tesseract
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Add tesseract to autofs master file.
+  notify: restart autofs
+  ansible.builtin.lineinfile:
+    path: /etc/auto.master
+    search_string: "tesseract"
+    line: "/- /etc/auto.tesseract --timeout 60"
+  when: shares | length > 0
+
+- name: Set smbcredentials file with samba username and password.
+  notify: restart autofs
+  no_log: true
+  blockinfile:
+    path: /root/.smbcredentials
+    create: true
+    mode: 0600
+    owner: root
+    group: root
+    block: |
+      username={{ tesseract_username }}
+      password={{ samba_password }}
+
+# - name: Change share ownership to tesseract user.
+#   with_items: "{{ shares }}"
+#   ansible.builtin.file:
+#     path: "{{ samba_path }}/{{ item.name }}"
+#     state: directory
+#     owner: "{{ tesseract_username }}"
+#     group: "{{ tesseract_username }}"
+#     mode: 0775
+
+- name: Flush handlers to make sure shares are mounted.
+  meta: flush_handlers

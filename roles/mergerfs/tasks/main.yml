@@ -1,0 +1,58 @@
+---
+
+- name: Setting architecture to amd64.
+  ansible.builtin.set_fact:
+    download_arch: "amd64"
+  when: ansible_architecture == "x86_64"
+
+- name: Setting architecture to arm64.
+  ansible.builtin.set_fact:
+    download_arch: "arm64"
+  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+
+- name: Setting architecture to armhf.
+  ansible.builtin.set_fact:
+    download_arch: "armhf"
+  when: '"armv7l" in ansible_architecture'
+
+- name: Downloading mergerfs .deb package.
+  ansible.builtin.get_url:                                                           
+    url: "https://github.com/trapexit/mergerfs/releases/download/\
+      {{ mergerfs_version }}/\
+      mergerfs_{{ mergerfs_version }}.{{ ansible_distribution }}-\
+      {{ ansible_distribution_release }}_{{ download_arch }}.deb"                       
+    dest: /tmp/mergerfs_{{ mergerfs_version }}.deb
+
+- name: Install mergerfs from download .deb package.
+  ansible.builtin.apt:
+    deb: /tmp/mergerfs_{{ mergerfs_version }}.deb 
+
+- name: Make sure mountpoint exists.
+  ansible.builtin.file:
+    path: "{{ mergerfs_mountpoint }}"
+    state: directory
+    mode: 0755
+
+- name: Make sure disk paths exist.
+  with_items: "{{ mergerfs_disks }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+
+- name: Mount mergerfs filesystems
+  when: mergerfs_disks | length > 0
+  ansible.builtin.mount:
+    fstype: fuse.mergerfs
+    src: "{{ ':'.join(mergerfs_disks) }}"
+    path: "{{ mergerfs_mountpoint }}"
+    opts: "minfreespace={{ mergerfs_min_free_space }},\
+      fsname={{ mergerfs_mountpoint | basename }},\
+      allow_other,\
+      use_ino,\
+      cache.files=partial,\
+      dropcacheonclose=true,\
+      category.create=mfs,\
+      moveonenospc=true,\
+      noauto"
+    state: mounted
