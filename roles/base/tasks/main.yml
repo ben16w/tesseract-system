@@ -127,7 +127,7 @@
     cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
   register: grp_change
   failed_when: grp_change.rc not in [0, 6]
-  changed_when: grp_change.rc == 0  
+  changed_when: grp_change.rc == 0
 
 - name: Remove pi sudoers file found on RPi.
   notify: restart sshd
@@ -137,9 +137,9 @@
 
 - name: Disable root login.
   notify: restart sshd
-  ansible.builtin.lineinfile: 
+  ansible.builtin.lineinfile:
     dest: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin' 
+    regexp: '^PermitRootLogin'
     line: 'PermitRootLogin No'
 
 - name: Add SFTP server config.
