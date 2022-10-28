@@ -1,11 +1,13 @@
 ---
 
-- hosts: all
+- name: Run tesseract-system roles.
+  hosts: all
   become: true
   roles:
       - {role: 'base', tags: 'base'}
       - {role: 'cloud_backup', tags: 'cloud_backup'}
       - {role: 'local_backup', tags: 'local_backup'}
+      - {role: 'healthcheck', tags: 'healthcheck'}
       - {role: 'mergerfs', tags: 'mergerfs'}
       - {role: 'monitoring', tags: 'monitoring'}
       - {role: 'mount', tags: 'mount'}

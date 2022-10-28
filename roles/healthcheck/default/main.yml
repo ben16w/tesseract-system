@@ -1,0 +1,5 @@
+---
+
+healthcheck_enabled: true
+healthcheck_uuid: ~
+healthcheck_minutes: 30

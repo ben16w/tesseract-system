@@ -14,7 +14,7 @@
   ansible.builtin.apt_repository:
     repo: deb http://packages.kopia.io/apt/ stable main
     state: present
-    update_cache : true
+    update_cache: true
 
 - name: Install Kopia and fuse.
   ansible.builtin.package:
@@ -34,7 +34,7 @@
 - name: Connect Kopia repo.
   register: result
   changed_when: "'Connected to repository' in result.stdout"
-  #no_log: true
+  no_log: true
   ansible.builtin.command:
     cmd: >
       kopia repository connect b2
@@ -43,9 +43,9 @@
       --key={{ bb_key }}
       --password={{ bb_backup_password }}
 
-#kopia policy set --compression=zstd path
-#kopia policy set --global \
-#--add-never-compress ".zip" \
+# kopia policy set --compression=zstd path
+# kopia policy set --global \
+# --add-never-compress ".zip" \
 # It's possible to specify targets, like appdata
 # [<target>]  Target of a policy ('global','user@host','@host') or a path
 
@@ -54,11 +54,11 @@
     cmd: >
       kopia policy set
       --keep-hourly 0
-      --keep-daily {{ item.keep_days|default("0", true) }}
-      --keep-weekly {{ item.keep_weeks|default("0", true) }}
-      --keep-monthly {{ item.keep_months|default("0", true) }}
-      --keep-annual {{ item.keep_years|default("0", true) }}
-      --keep-latest {{ item.keep_latest|default("8", true) }}
+      --keep-daily {{ item.keep_days | default("0", true) }}
+      --keep-weekly {{ item.keep_weeks | default("0", true) }}
+      --keep-monthly {{ item.keep_months | default("0", true) }}
+      --keep-annual {{ item.keep_years | default("0", true) }}
+      --keep-latest {{ item.keep_latest | default("8", true) }}
       {{ item.path }}
   with_items: "{{ cloud_backup_paths }}"
   when: cloud_backup_paths | length > 0
@@ -74,11 +74,11 @@
   with_items: "{{ cloud_backup_paths }}"
   when: cloud_backup_paths | length > 0
 
-- name:  Add paths for backup to cron.
+- name: Add paths for backup to cron.
   ansible.builtin.cron:
     name: "Kopia backup."
     minute: "0"
     hour: "0"
-    #job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
+    # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
     job: "bash {{ files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
   when: cloud_backup_paths | length > 0
