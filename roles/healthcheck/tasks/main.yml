@@ -12,4 +12,4 @@
       ansible.builtin.cron:
         name: "Healthckecks.io ping."
         minute: "*/{{ healthcheck_minutes }}"
-        job: curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/{{ healthcheck_uuid }}"
+        job: "curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/{{ healthcheck_uuid }}"
