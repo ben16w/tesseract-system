@@ -37,6 +37,6 @@
   ansible.builtin.cron:
     name: "Local backup."
     minute: "0"
-    hour: "3"
+    hour: "1"
     job: "bash {{ files_path }}/scripts/local_backup.sh{{ backup_directories_string }}"
   when: local_backup_paths | length > 0

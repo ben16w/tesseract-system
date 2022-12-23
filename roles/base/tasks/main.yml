@@ -18,7 +18,7 @@
 
 # WARN this can match more than 1 ip
 - name: Set hosts in /etc/host.
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     search_string: "{{ item }}"
     line: "{% for ip in hostvars[item]['ansible_all_ipv4_addresses'] %}\
@@ -33,7 +33,7 @@
   when: hostvars[item]['ansible_all_ipv4_addresses'] is defined and item != inventory_hostname
 
 - name: Set localhost entry in /etc/host.
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     search_string: "{{ inventory_hostname }}"
     line: "127.0.0.1 {{ inventory_hostname }}"
@@ -63,7 +63,7 @@
 
 - name: Update & upgrade OS.
   ansible.builtin.apt:
-    upgrade: full 
+    upgrade: full
     update_cache: true
     cache_valid_time: 21600 # 6 Hours
 
@@ -82,12 +82,12 @@
       - wakeonlan
 
 - name: Install setuptools using pip.
-  pip:
+  ansible.builtin.pip:
     name:
       - setuptools
 
 - name: Set nano as default editor for root.
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /root/.selected_editor
     search_string: SELECTED_EDITOR=
     line: SELECTED_EDITOR="/bin/nano"

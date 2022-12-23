@@ -78,7 +78,7 @@
   ansible.builtin.cron:
     name: "Kopia backup."
     minute: "0"
-    hour: "0"
+    hour: "2"
     # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
     job: "bash {{ files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
   when: cloud_backup_paths | length > 0
