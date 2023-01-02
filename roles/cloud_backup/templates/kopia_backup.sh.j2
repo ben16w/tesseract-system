@@ -32,7 +32,7 @@ for backup_dir in "$@"; do
     fi
 
     # Everything goes to file. Maybe should be 2> | tee -a file
-    kopia snapshot "$backup_dir" --log-level=warning &>> ""$LOG_FILE""
+    kopia snapshot "$backup_dir" --log-level=warning 2>> ""$LOG_FILE""
     response=$?
     if [ $response -ne 0 ]; then
         error_exit "Kopia command failed."

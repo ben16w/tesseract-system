@@ -19,7 +19,7 @@ Subject: $(hostname): Script $0 has encountered an error - ${1:-"Unknown Error"}
 
 Hostname: $(hostname)
 Logs:
-$(tail "{{ log_file }}")
+$(tail -n 10 "{{ log_file }}")
 EOF
     exit
 }
