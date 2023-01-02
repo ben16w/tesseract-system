@@ -3,6 +3,8 @@
 cloud_backup_log_dir: "/var/log/kopia/"
 files_path: "/root"
 
+cloud_backup_log_level: "debug"
+
 bb_key_id: ~
 bb_key: ~
 bb_backup_password: ~
