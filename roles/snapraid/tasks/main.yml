@@ -116,4 +116,4 @@
     job: >
       python3 /opt/snapraid-runner/snapraid-runner.py
       --conf /opt/snapraid-runner/snapraid-runner.conf
-  when: snapraid_parity_disks | length > 0 and snapraid_data_disks | length > 0 
+  when: snapraid_parity_disks | length > 0 and snapraid_data_disks | length > 0

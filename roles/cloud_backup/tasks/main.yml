@@ -37,7 +37,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0776
+    mode: 0775
 
 - name: Connect Kopia repo.
   register: result
