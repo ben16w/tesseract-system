@@ -1,6 +1,6 @@
 ---
 
-log_file: "/var/log/tesseract.log"
+cloud_backup_log_dir: "/var/log/kopia/"
 files_path: "/root"
 
 bb_key_id: ~

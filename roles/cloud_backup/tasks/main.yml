@@ -31,6 +31,14 @@
     group: root
     mode: 0755
 
+- name: Make sure kopia logging directory exists.
+  ansible.builtin.file:
+    path: "{{ cloud_backup_log_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0776
+
 - name: Connect Kopia repo.
   register: result
   changed_when: "'Connected to repository' in result.stdout"
