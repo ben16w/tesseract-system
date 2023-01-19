@@ -10,10 +10,15 @@ bb_key: ~
 bb_backup_password: ~
 
 cloud_backup_paths: []
-  #   path: "/media/appdata"
-  #   backup: true
-  #   keep_days:
-  #   keep_weeks:
-  #   keep_months:
-  #   keep_years:
-  #   keep_latest:
+  #  path: "/media/appdata"
+  #  backup: true
+  #  keep_days:
+  #  keep_weeks:
+  #  keep_months:
+  #  keep_years:
+  #  keep_latest:
+
+
+# ?
+  #  exclude_dirs:
+  #    - dir
