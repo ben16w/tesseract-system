@@ -5,14 +5,43 @@
 
 ## Configuration
 BACKUP_DESTINATION="{{ local_backup_destination }}"
-BACKUP_RETENTION_DAILY={{ local_backups_daily }}
-BACKUP_RETENTION_WEEKLY={{ local_backups_weekly }}
-BACKUP_RETENTION_MONTHLY={{ local_backups_monthly }}
+BACKUP_RETENTION_DAILY="{{ local_backups_daily }}"
+BACKUP_RETENTION_WEEKLY="{{ local_backups_weekly }}"
+BACKUP_RETENTION_MONTHLY="{{ local_backups_monthly }}"
 LOG_FILE="{{ log_file }}"
 
 {% raw %}
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/base.sh"
+# Set global variables
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+if [ -f "$SCRIPT_DIR"/.env ]; then
+    source "$SCRIPT_DIR"/.env || exit 1
+fi
+
+function error_exit()
+{
+    echo "$(date '+%F %T.%3N') ERROR: ${1:-"Unknown Error"}" | tee -a "{{ log_file }}"
+
+msmtp -t <<EOF
+To: {{ email_username }}
+From: {{ email_username }}
+Subject: $(hostname): Script $0 has encountered an error - ${1:-"Unknown Error"}
+
+Hostname: $(hostname)
+Logs:
+$(tail -n 10 "{{ log_file }}")
+EOF
+    exit
+}
+
+function log()
+{
+    echo "$(date '+%F %T.%3N') INFO: ${1}" | tee -a "{{ log_file }}"
+}
+
+if [[ $EUID -ne 0 ]]; then
+    error_exit "Script $0 must be run as root" 
+fi
 
 # PUT SCRIPT INFO IN HERE
 if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then

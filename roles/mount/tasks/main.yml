@@ -1,5 +1,7 @@
 ---
 
+# https://askubuntu.com/questions/58935/how-do-i-create-an-encrypted-filesystem-inside-a-file
+
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
@@ -39,6 +41,8 @@
       echo -n "{{ disk_password }}" |
       cryptsetup luksOpen "/dev/disk/by-uuid/{{ item.uuid }}" "luks-{{ item.path | basename }}"
     creates: "/dev/mapper/luks-{{ item.path | basename }}"
+
+# Replace "/dev/disk/by-uuid/{{ item.uuid }}" with filepath
 
 - name: Mount disks.
   with_items: "{{ disk_mounts }}"

@@ -10,8 +10,6 @@
       - email_username is not none
       - email_password is not none
 
-# Expand root to use all disk space?
-
 - name: Set hostname.
   ansible.builtin.hostname:
     name: "{{ inventory_hostname }}"
@@ -42,24 +40,6 @@
     mode: 0644
 
 # Set date and time?
-
-# - name: Reduce GPU memory to 16MB.
-#   ansible.builtin.lineinfile:
-#     path: /boot/firmware/config.txt
-#     line: "gpu_mem=16"
-
-# - name: Overclock the CPU a bit.
-#   blockinfile:
-#     path: /boot/firmware/config.txt
-#     block: |
-#       over_voltage=2
-#       arm_freq=1750
-
-#- name: Remove swap file
-#  command: dphys-swapfile swapoff
-#  command: dphys-swapfile uninstall
-#  command: systemctl disable dphys-swapfile
-# Swapfile?
 
 - name: Update & upgrade OS.
   ansible.builtin.apt:
@@ -101,7 +81,7 @@
     name: "{{ admin_username }}"
     comment: "admin user"
     shell: /bin/bash
-    #group: admin
+#   group: admin
     groups:
       - sudo
     append: true
@@ -153,10 +133,15 @@
     mode: 0644
     block: |
       Match user {{ tesseract_username }}
-      ChrootDirectory /media/storage
-      X11Forwarding no
-      AllowTcpForwarding no
-      ForceCommand internal-sftp
+        ChrootDirectory /media/storage
+        X11Forwarding no
+        AllowTcpForwarding no
+        ForceCommand internal-sftp
+      Match user {{ admin_username }}
+        ChrootDirectory /media
+        X11Forwarding no
+        AllowTcpForwarding no
+        ForceCommand internal-sftp
 
 - name: Add msmtp email global config.
   no_log: true
@@ -177,22 +162,6 @@
       user "{{ email_username }}"
       from "{{ email_username }}"
       password "{{ email_password }}"
-
-- name: Create scripts directory if it does not exist.
-  ansible.builtin.file:
-    path: "{{ files_path }}/scripts"
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-
-- name: Copy base script.
-  ansible.builtin.template:
-    src: templates/base.sh.j2
-    dest: "{{ files_path }}/scripts/base.sh"
-    owner: root
-    group: root
-    mode: 0755
 
 - name: Install fail2ban.
   ansible.builtin.apt:

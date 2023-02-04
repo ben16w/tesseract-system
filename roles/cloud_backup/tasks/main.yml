@@ -23,6 +23,14 @@
       - fuse
     state: present
 
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
 - name: Copy kopia_backup.sh.
   ansible.builtin.template:
     src: templates/kopia_backup.sh.j2
