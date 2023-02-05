@@ -7,14 +7,14 @@
       - samba_password is not none
 
 - name: Install samba software.
-  apt:
+  ansible.builtin.apt:
     pkg:
       - cifs-utils
       - autofs
 
 - name: Ensure tesseract user exists and get info.
   register: created_tesseract_user
-  user:
+  ansible.builtin.user:
     name: "{{ tesseract_username }}"
 
 - name: Make sure shares path exists.
@@ -44,7 +44,7 @@
 - name: Set smbcredentials file with samba username and password.
   notify: restart autofs
   no_log: true
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /root/.smbcredentials
     create: true
     mode: 0600
@@ -64,4 +64,4 @@
 #     mode: 0775
 
 - name: Flush handlers to make sure shares are mounted.
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers

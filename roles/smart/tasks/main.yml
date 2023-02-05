@@ -35,7 +35,7 @@
     mode: 0755
 
 - name: Download influxdb.
-  get_url:
+  ansible.builtin.get_url:
     url: "https://dl.influxdata.com/influxdb/releases/influxdb2-{{ smart_influxdb_version }}-linux-{{ download_arch }}.tar.gz"
     dest: /tmp/influxdb.tar.gz
     mode: 0755
@@ -46,7 +46,7 @@
     creates: /opt/influxdb/influxd
 
 - name: Put influxdb service file into place.
-  template:
+  ansible.builtin.template:
     src: influxdb.service.j2
     dest: /etc/systemd/system/influxdb.service
     force: true
@@ -79,13 +79,13 @@
     mode: 0755
 
 - name: Download scrutiny-web.
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/AnalogJ/scrutiny/releases/download/v{{ smart_scrutiny_version }}/scrutiny-web-linux-{{ download_arch }}"
     dest: /opt/scrutiny/bin/scrutiny-web
     mode: 0755
 
 - name: Download scrutiny-collector-metrics.
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/AnalogJ/scrutiny/releases/download/v{{ smart_scrutiny_version }}/scrutiny-collector-metrics-linux-{{ download_arch }}"
     dest: /opt/scrutiny/bin/scrutiny-collector-metrics
     mode: 0755

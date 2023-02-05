@@ -1,30 +1,20 @@
 ---
 
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - samba_password is not none
+      - samba_path is not none
+
 - name: Ensure tesseract user exists.
-  #register: created_tesseract_user
-  user:
+  ansible.builtin.user:
     name: "{{ tesseract_username }}"
 
-
-- name: Makes sure samba path exists
-  ansible.builtin.file:
-    path: "{{ samba_path }}"
-    state: directory
-    mode: 0755
-
-- name: Find all directoies in samba path.
-  find:
-    paths: "{{ samba_path }}"
-    recurse: no
-    file_type: directory
-  register: samaba_dirs
-
 - name: Install software.
-  apt:
+  ansible.builtin.apt:
     pkg:
       - samba
       - samba-common-bin
-      - acl
 
 - name: Ensure samba is started.
   ansible.builtin.service:
@@ -38,14 +28,18 @@
     state: stopped
     enabled: false
 
-- name: Generate samba config.
-  notify: restart samba
-  ansible.builtin.template:
-    src: smb.conf.j2
-    dest: /etc/samba/smb.conf
-    owner: root
-    group: root
-    mode: 0644
+- name: Makes sure samba path exists
+  ansible.builtin.file:
+    path: "{{ samba_path }}"
+    state: directory
+    mode: 0755
+
+- name: Find all directoies in samba path.
+  ansible.builtin.find:
+    paths: "{{ samba_path }}"
+    recurse: true
+    file_type: directory
+  register: samaba_dirs
 
 - name: Make sure share directories exist and are owned by tesseract.
   notify: restart samba
@@ -57,19 +51,17 @@
     group: "{{ tesseract_username }}"
     recurse: true
 
-- name: Set ACL for tesseract user.
+- name: Generate samba config.
   notify: restart samba
-  with_items: "{{ samaba_dirs.files }}"
-  ansible.posix.acl:
-    path: "{{ item.path }}"
-    entity: "{{ tesseract_username }}"
-    etype: user
-    permissions: rwx
-    recursive: true
-    state: present
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Create tesseract samba user if they don't exist yet # Might not update if password changes
-  shell: >
+  ansible.builtin.shell: >
     set -o nounset -o pipefail -o errexit &&
     (pdbedit --user={{ tesseract_username }} 2>&1 > /dev/null) \
     || (echo {{ samba_password }}; echo {{ samba_password }}) \
@@ -77,5 +69,5 @@
   args:
     executable: /bin/bash
   no_log: true
-  register: create_samba_tesseract
-  changed_when: "'Added user' in create_samba_tesseract.stdout"
+  register: created_user
+  changed_when: "'Added user' in created_user.stdout"
