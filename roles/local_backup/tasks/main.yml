@@ -1,5 +1,38 @@
 ---
 
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - email_host is not none
+      - email_port is not none
+      - email_username is not none
+      - email_password is not none
+
+- name: Install common software.
+  ansible.builtin.apt:
+    pkg:
+      - msmtp
+
+- name: Add msmtp email global config.
+  no_log: true
+  ansible.builtin.blockinfile:
+    path: /etc/msmtprc
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      account default
+      tls on
+      tls_starttls off
+      tls_certcheck off
+      auth login
+      host "{{ email_host }}"
+      port "{{ email_port }}"
+      user "{{ email_username }}"
+      from "{{ email_username }}"
+      password "{{ email_password }}"
+
 - name: Create backups directory if it does not exist
   ansible.builtin.file:
     path: "{{ local_backup_destination }}"

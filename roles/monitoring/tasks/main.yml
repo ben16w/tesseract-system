@@ -5,7 +5,35 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
+      - email_host is not none
+      - email_port is not none
       - email_username is not none
+      - email_password is not none
+
+- name: Install common software.
+  ansible.builtin.apt:
+    pkg:
+      - msmtp
+
+- name: Add msmtp email global config.
+  no_log: true
+  ansible.builtin.blockinfile:
+    path: /etc/msmtprc
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      account default
+      tls on
+      tls_starttls off
+      tls_certcheck off
+      auth login
+      host "{{ email_host }}"
+      port "{{ email_port }}"
+      user "{{ email_username }}"
+      from "{{ email_username }}"
+      password "{{ email_password }}"
 
 - name: Download netdata install script.
   ansible.builtin.get_url:
@@ -35,7 +63,7 @@
 # Destination /etc/netdata/netdata.conf does not exist on 32bit Raspbian
 - name: Set netdata to listen of all interfaces.
   notify: restart netdata
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/netdata/netdata.conf
     search_string: bind to =
     line: bind to = *
@@ -44,29 +72,29 @@
   ansible.builtin.copy:
     src: /usr/lib/netdata/conf.d/health_alarm_notify.conf
     dest: /etc/netdata/health_alarm_notify.conf
-    remote_src: yes
-    force: no
+    remote_src: true
+    force: false
     owner: root
     group: root
     mode: 0644
 
 - name: Set netdata to use msmtp for email.
   notify: restart netdata
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/netdata/health_alarm_notify.conf
     search_string: sendmail=
     line: "sendmail='/usr/bin/msmtp'"
 
 - name: Set netdata email sender.
   notify: restart netdata
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/netdata/health_alarm_notify.conf
     search_string: EMAIL_SENDER=
     line: "EMAIL_SENDER='{{ email_username }}'"
 
 - name: Set netdata email recipient.
   notify: restart netdata
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/netdata/health_alarm_notify.conf
     search_string: DEFAULT_RECIPIENT_EMAIL=
     line: "DEFAULT_RECIPIENT_EMAIL='{{ email_username }}|critical'"

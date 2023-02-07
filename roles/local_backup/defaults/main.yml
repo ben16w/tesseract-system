@@ -10,3 +10,8 @@ local_backup_destination: /media/backups
 local_backups_daily: 4
 local_backups_weekly: 3
 local_backups_monthly: 2
+
+email_host: ~
+email_port: ~
+email_username: ~
+email_password: ~

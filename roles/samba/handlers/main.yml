@@ -1,11 +1,6 @@
 ---
-# This probably isn't needed since I'm using a template
-# - name: remove smb config
-#   file:
-#     path: /etc/samba/smb.conf
-#     state: absent
-
-- name: restart samba
+- name: Restart Samba.
+  listen: restart samba
   ansible.builtin.service:
     name: smbd
     state: restarted

@@ -1,5 +1,10 @@
 ---
 
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - mergerfs_mountpoint is not none
+
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
@@ -16,16 +21,16 @@
   when: '"armv7l" in ansible_architecture'
 
 - name: Downloading mergerfs .deb package.
-  ansible.builtin.get_url:                                                           
+  ansible.builtin.get_url:
     url: "https://github.com/trapexit/mergerfs/releases/download/\
       {{ mergerfs_version }}/\
       mergerfs_{{ mergerfs_version }}.{{ ansible_distribution }}-\
-      {{ ansible_distribution_release }}_{{ download_arch }}.deb"                       
-    dest: /tmp/mergerfs_{{ mergerfs_version }}.deb
+      {{ ansible_distribution_release }}_{{ download_arch }}.deb"
+    dest: /tmp/mergerfs.deb
 
 - name: Install mergerfs from download .deb package.
   ansible.builtin.apt:
-    deb: /tmp/mergerfs_{{ mergerfs_version }}.deb 
+    deb: /tmp/mergerfs.deb
 
 - name: Make sure mountpoint exists.
   ansible.builtin.file:
