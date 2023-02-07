@@ -3,6 +3,7 @@
 ## Configuration
 LOG_DIR="{{ cloud_backup_log_dir }}"
 LOG_LEVEL="{{ cloud_backup_log_level }}"
+LOG_FILE="{{ log_file }}"
 
 {% raw %}
 
@@ -14,7 +15,7 @@ fi
 
 function error_exit()
 {
-    echo "$(date '+%F %T.%3N') ERROR: ${1:-"Unknown Error"}" | tee -a "{{ log_file }}"
+    echo "$(date '+%F %T.%3N') ERROR: ${1:-"Unknown Error"}" | tee -a "$LOG_FILE"
 
 msmtp -t <<EOF
 To: {{ email_username }}
@@ -23,14 +24,14 @@ Subject: $(hostname): Script $0 has encountered an error - ${1:-"Unknown Error"}
 
 Hostname: $(hostname)
 Logs:
-$(tail -n 10 "{{ log_file }}")
+$(tail -n 10 "$LOG_FILE")
 EOF
     exit
 }
 
 function log()
 {
-    echo "$(date '+%F %T.%3N') INFO: ${1}" | tee -a "{{ log_file }}"
+    echo "$(date '+%F %T.%3N') INFO: ${1}" | tee -a "$LOG_FILE"
 }
 
 if [[ $EUID -ne 0 ]]; then
