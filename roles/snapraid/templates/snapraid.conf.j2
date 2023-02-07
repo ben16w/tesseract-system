@@ -12,18 +12,6 @@ content {{ data_disk }}/snapraid.content
 disk {{ data_disk | basename }} {{ data_disk }}
 {% endfor %}
 
-exclude /Downloads/incomplete/
-
-exclude *.unrecoverable
-exclude /lost+found/
-exclude *.!sync
-exclude .AppleDouble
-exclude ._AppleDouble
-exclude .DS_Store
-exclude ._.DS_Store
-exclude .Thumbs.db
-exclude .fseventsd
-exclude .Spotlight-V100
-exclude .TemporaryItems
-exclude .Trashes
-exclude .AppleDB
+{% for exclude in snapraid_excludes %}
+exclude {{ exclude }}
+{% endfor %}

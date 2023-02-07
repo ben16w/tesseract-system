@@ -6,6 +6,23 @@ snapraid_data_disks: []
 snapraid_version: "12.1"
 snapraid_delete_threshold: 250
 
+snapraid_excludes:
+  - /Downloads/
+  - /Import/
+  - /lost+found/
+  - .AppleDouble
+  - ._AppleDouble
+  - .DS_Store
+  - ._.DS_Store
+  - .Thumbs.db
+  - .fseventsd
+  - .Spotlight-V100
+  - .TemporaryItems
+  - .Trashes
+  - .AppleDB
+  - "*.unrecoverable"
+  - "*.!sync"
+
 email_username: ~
 email_host: ~
 email_port: ~
