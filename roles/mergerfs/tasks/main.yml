@@ -3,7 +3,7 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - mergerfs_mountpoint is not none
+      - mergerfs_path is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
@@ -34,7 +34,7 @@
 
 - name: Make sure mountpoint exists.
   ansible.builtin.file:
-    path: "{{ mergerfs_mountpoint }}"
+    path: "{{ mergerfs_path }}"
     state: directory
     mode: 0755
 
@@ -50,9 +50,9 @@
   ansible.builtin.mount:
     fstype: fuse.mergerfs
     src: "{{ ':'.join(mergerfs_disks) }}"
-    path: "{{ mergerfs_mountpoint }}"
+    path: "{{ mergerfs_path }}"
     opts: "minfreespace={{ mergerfs_min_free_space }},\
-      fsname={{ mergerfs_mountpoint | basename }},\
+      fsname={{ mergerfs_path | basename }},\
       allow_other,\
       use_ino,\
       cache.files=partial,\
