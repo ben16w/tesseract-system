@@ -1,7 +1,7 @@
 ---
 
 - name: When healthcheck is enabled.
-  when: healthcheck_enabled
+  when: healthcheck_disabled is false
   block:
     - name: Assert that all required inputs have been provided.
       ansible.builtin.assert:
