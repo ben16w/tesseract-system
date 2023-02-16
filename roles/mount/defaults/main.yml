@@ -1,12 +1,6 @@
 ---
 
-disk_mounts: []
-  # - path: "/media/disk1"
-  #   uuid: "4e89ce31-a6b8-47e5-a382-a7b1057d951f"
-disk_password: ~
-
-# disk_mounts:
+mount_disks: []
 #   - mount_path: "/media/disk1"
 #     volume_path: "/dev/disk/by-uuid/4e89ce31-a6b8-47e5-a382-a7b1057d951f"
-#     encrypted: true
 #     password: "password"
