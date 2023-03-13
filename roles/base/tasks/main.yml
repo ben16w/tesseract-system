@@ -56,10 +56,11 @@
       - zip
       - wakeonlan
 
-- name: Install setuptools using pip.
+- name: Install setuptools and passlib using pip.
   ansible.builtin.pip:
     name:
       - setuptools
+      - passlib
 
 - name: Set nano as default editor for root.
   ansible.builtin.lineinfile:
