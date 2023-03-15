@@ -9,6 +9,7 @@ BACKUP_RETENTION_DAILY="{{ local_backups_daily }}"
 BACKUP_RETENTION_WEEKLY="{{ local_backups_weekly }}"
 BACKUP_RETENTION_MONTHLY="{{ local_backups_monthly }}"
 LOG_FILE="{{ log_file }}"
+EMAIL_USERNAME="{{ email_username }}"
 
 {% raw %}
 
@@ -23,8 +24,8 @@ function error_exit()
     echo "$(date '+%F %T.%3N') ERROR: ${1:-"Unknown Error"}" | tee -a "$LOG_FILE"
 
 msmtp -t <<EOF
-To: {{ email_username }}
-From: {{ email_username }}
+To: ${EMAIL_USERNAME}
+From: ${EMAIL_USERNAME}
 Subject: $(hostname): Script $0 has encountered an error - ${1:-"Unknown Error"}
 
 Hostname: $(hostname)
