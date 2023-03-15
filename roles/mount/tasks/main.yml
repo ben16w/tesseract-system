@@ -7,6 +7,7 @@
 
 - name: Make sure disk mount paths exists.
   with_items: "{{ mount_disks }}"
+  no_log: true
   ansible.builtin.file:
     path: "{{ item.mount_path }}"
     state: directory
@@ -23,6 +24,7 @@
 
 - name: Mount disks.
   with_items: "{{ mount_disks }}"
+  no_log: true
   ansible.posix.mount:
     path: "{{ item.mount_path }}"
     src: "/dev/mapper/luks-{{ item.mount_path | basename }}"
