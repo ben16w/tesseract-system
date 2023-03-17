@@ -37,7 +37,7 @@
 - name: Find all directoies in samba path.
   ansible.builtin.find:
     paths: "{{ samba_path }}"
-    recurse: true
+    recurse: false
     file_type: directory
   register: samaba_dirs
 
