@@ -129,7 +129,7 @@
     mode: 0644
     block: |
       Match user {{ tesseract_username }}
-        ChrootDirectory /media/storage
+        ChrootDirectory /media
         X11Forwarding no
         AllowTcpForwarding no
         ForceCommand internal-sftp
