@@ -1,7 +1,6 @@
 [global]
   server string = Tesseract File Server
   server role = standalone server
-  #interfaces = {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}/24
   bind interfaces only = yes
   disable netbios = yes
   workgroup = WORKGROUP
