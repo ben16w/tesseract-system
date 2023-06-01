@@ -3,6 +3,8 @@
 log_file: /var/log/tesseract.log
 files_path: /root
 
+scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+
 local_backup_paths: []
 
 local_backup_destination: /media/backups

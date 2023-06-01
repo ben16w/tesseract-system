@@ -3,6 +3,8 @@
 cloud_backup_log_dir: "/var/log/kopia/"
 files_path: "/root"
 
+scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+
 cloud_backup_log_level: "debug"
 
 email_host: ~
@@ -14,6 +16,8 @@ bb_key_id: ~
 bb_key: ~
 bb_backup_password: ~
 
+cloud_backup_ignored: []
+
 cloud_backup_paths: []
   #  path: "/media/appdata"
   #  backup: true
@@ -22,8 +26,3 @@ cloud_backup_paths: []
   #  keep_months:
   #  keep_years:
   #  keep_latest:
-
-
-# ?
-  #  exclude_dirs:
-  #    - dir

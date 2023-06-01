@@ -56,13 +56,12 @@
     group: root
     mode: 0755
 
-- name: Copy kopia_backup.sh.
-  ansible.builtin.template:
-    src: templates/kopia_backup.sh.j2
-    dest: "{{ files_path }}/scripts/kopia_backup.sh"
-    owner: root
-    group: root
-    mode: 0755
+- name: Git checkout scripts to scripts directory.
+  ansible.builtin.git:
+    repo: "{{ scripts_repo }}"
+    dest: "{{ files_path }}/scripts"
+    version: main
+    force: true
 
 - name: Make sure kopia logging directory exists.
   ansible.builtin.file:
@@ -104,6 +103,11 @@
       {{ item.path }}
   with_items: "{{ cloud_backup_paths }}"
   when: cloud_backup_paths | length > 0
+
+# kopia policy set --add-ignore /Downloads @tepig
+# could be put in a for loop in the section above to add in --add-ignore
+# ignored paths would be the same for all paths
+# {% for path in cloud_backup_ignored %} --add-ignore {{ path }}{% endfor %}
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:

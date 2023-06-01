@@ -55,13 +55,12 @@
     group: root
     mode: 0755
 
-- name: Copy local_backup.sh.
-  ansible.builtin.template:
-    src: templates/local_backup.sh.j2
-    dest: "{{ files_path }}/scripts/local_backup.sh"
-    owner: root
-    group: root
-    mode: 0755
+- name: Git checkout scripts to scripts directory.
+  ansible.builtin.git:
+    repo: "{{ scripts_repo }}"
+    dest: "{{ files_path }}/scripts"
+    version: main
+    force: true
 
 - name: Initialize an empty string for local backup paths.
   ansible.builtin.set_fact:
