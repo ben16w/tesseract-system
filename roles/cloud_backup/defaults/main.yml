@@ -1,11 +1,13 @@
 ---
 
-cloud_backup_log_dir: "/var/log/kopia/"
 files_path: "/root"
 
 scripts_repo: https://github.com/ben16w/tesseract-scripts.git
 
+cloud_backup_log_dir: "/var/log/kopia/"
 cloud_backup_log_level: "debug"
+
+cloud_verify_percent: "0.3"
 
 email_host: ~
 email_port: ~

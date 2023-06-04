@@ -63,6 +63,21 @@
     version: main
     force: true
 
+- name: Write .env file.
+  ansible.builtin.blockinfile:
+    path: "{{ scripts_repo }}"/.env
+    marker: "# {mark} cloud_backup ANSIBLE MANAGED BLOCK"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      LOG_DIR="{{ cloud_backup_log_dir }}"
+      LOG_LEVEL="{{ cloud_backup_log_level }}"
+      LOG_FILE="{{ files_path }}"
+      EMAIL_USERNAME="{{ email_username }}"
+      VERIFY_PERCENT="{{ cloud_verify_percent }}"
+
 - name: Make sure kopia logging directory exists.
   ansible.builtin.file:
     path: "{{ cloud_backup_log_dir }}"

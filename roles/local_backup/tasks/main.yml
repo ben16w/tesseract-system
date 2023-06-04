@@ -62,6 +62,23 @@
     version: main
     force: true
 
+- name: Write .env file.
+  ansible.builtin.blockinfile:
+    path: "{{ scripts_repo }}"/.env
+    marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      BACKUP_DESTINATION="{{ local_backup_destination }}"
+      BACKUP_RETENTION_DAILY="{{ local_backups_daily }}"
+      BACKUP_RETENTION_WEEKLY="{{ local_backups_weekly }}"
+      BACKUP_RETENTION_MONTHLY="{{ local_backups_monthly }}"
+      LOG_FILE="{{ log_file }}"
+      EMAIL_USERNAME="{{ email_username }}"
+
+
 - name: Initialize an empty string for local backup paths.
   ansible.builtin.set_fact:
     backup_directories_string: ""
