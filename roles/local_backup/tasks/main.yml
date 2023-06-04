@@ -64,7 +64,7 @@
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ scripts_repo }}"/.env
+    path: "{{ scripts_repo }}/.env"
     marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
