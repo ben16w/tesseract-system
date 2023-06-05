@@ -100,12 +100,6 @@
       --key={{ kopia_backup_bb_key }}
       --password={{ kopia_backup_password }}
 
-# kopia policy set --compression=zstd path
-# kopia policy set --global \
-# --add-never-compress ".zip" \
-# It's possible to specify targets, like appdata
-# [<target>]  Target of a policy ('global','user@host','@host') or a path
-
 - name: Set Kopia policies for paths.
   ansible.builtin.command:
     cmd: >
@@ -120,10 +114,14 @@
   with_items: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
 
-# kopia policy set --add-ignore /Downloads @tepig
-# could be put in a for loop in the section above to add in --add-ignore
-# ignored paths would be the same for all paths
-# {% for path in kopia_backup_ignored %} --add-ignore {{ path }}{% endfor %}
+- name: Set Kopia ignore policies for paths.
+  ansible.builtin.command:
+    cmd: >
+      kopia policy set
+      {% for path in kopia_backup_ignored %} --add-ignore {{ path }}{% endfor %}
+      {{ item.path }}
+  with_items: "{{ kopia_backup_paths }}"
+  when: kopia_backup_paths | length > 0
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:
