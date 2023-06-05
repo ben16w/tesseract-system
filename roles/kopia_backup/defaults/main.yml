@@ -5,23 +5,24 @@ files_path: "/root"
 
 scripts_repo: https://github.com/ben16w/tesseract-scripts.git
 
-cloud_backup_log_dir: "/var/log/kopia/"
-cloud_backup_log_level: "debug"
-
-cloud_backup_verify_percent: "0.3"
-
 email_host: ~
 email_port: ~
 email_username: ~
 email_password: ~
 
-bb_key_id: ~
-bb_key: ~
-bb_backup_password: ~
+kopia_backup_log_dir: "/var/log/kopia/"
+kopia_backup_log_level: "debug"
 
-cloud_backup_ignored: []
+kopia_backup_verify_percent: "0.3"
 
-cloud_backup_paths: []
+kopia_backup_bb_key_id: ~
+kopia_backup_bb_key: ~
+kopia_backup_bb_bucket: ~
+kopia_backup_password: ~
+
+kopia_backup_ignored: []
+
+kopia_backup_paths: []
   #  path: "/media/appdata"
   #  backup: true
   #  keep_days:

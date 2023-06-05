@@ -2,13 +2,14 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - bb_key_id is not none
-      - bb_key is not none
-      - bb_backup_password is not none
       - email_host is not none
       - email_port is not none
       - email_username is not none
       - email_password is not none
+      - kopia_backup_bb_key_id is not none
+      - kopia_backup_bb_key is not none
+      - kopia_backup_bb_bucket is not none
+      - kopia_backup_password is not none
 
 - name: Add an Apt signing key for Kopia.
   ansible.builtin.apt_key:
@@ -66,21 +67,21 @@
 - name: Write .env file.
   ansible.builtin.blockinfile:
     path: "{{ files_path }}/scripts/.env"
-    marker: "# {mark} cloud_backup ANSIBLE MANAGED BLOCK"
+    marker: "# {mark} kopia_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
     group: root
     mode: 0644
     block: |
-      CLOUD_BACKUP_LOG_DIR="{{ cloud_backup_log_dir }}"
-      CLOUD_BACKUP_LOG_LEVEL="{{ cloud_backup_log_level }}"
-      CLOUD_BACKUP_VERIFY_PERCENT="{{ cloud_backup_verify_percent }}"
+      KOPIA_BACKUP_LOG_DIR="{{ kopia_backup_log_dir }}"
+      KOPIA_BACKUP_LOG_LEVEL="{{ kopia_backup_log_level }}"
+      KOPIA_BACKUP_VERIFY_PERCENT="{{ kopia_backup_verify_percent }}"
       LOG_FILE="{{ log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
 - name: Make sure kopia logging directory exists.
   ansible.builtin.file:
-    path: "{{ cloud_backup_log_dir }}"
+    path: "{{ kopia_backup_log_dir }}"
     state: directory
     owner: root
     group: root
@@ -89,15 +90,15 @@
 - name: Connect Kopia repo.
   register: result
   changed_when: "'Connected to repository' in result.stdout"
-  when: cloud_backup_paths | length > 0
+  when: kopia_backup_paths | length > 0
   no_log: true
   ansible.builtin.command:
     cmd: >
       kopia repository connect b2
-      --bucket={{ bb_bucket }}
-      --key-id={{ bb_key_id }}
-      --key={{ bb_key }}
-      --password={{ bb_backup_password }}
+      --bucket={{ kopia_backup_bb_bucket }}
+      --key-id={{ kopia_backup_bb_key_id }}
+      --key={{ kopia_backup_bb_key }}
+      --password={{ kopia_backup_password }}
 
 # kopia policy set --compression=zstd path
 # kopia policy set --global \
@@ -116,24 +117,24 @@
       --keep-annual {{ item.keep_years | default("0", true) }}
       --keep-latest {{ item.keep_latest | default("8", true) }}
       {{ item.path }}
-  with_items: "{{ cloud_backup_paths }}"
-  when: cloud_backup_paths | length > 0
+  with_items: "{{ kopia_backup_paths }}"
+  when: kopia_backup_paths | length > 0
 
 # kopia policy set --add-ignore /Downloads @tepig
 # could be put in a for loop in the section above to add in --add-ignore
 # ignored paths would be the same for all paths
-# {% for path in cloud_backup_ignored %} --add-ignore {{ path }}{% endfor %}
+# {% for path in kopia_backup_ignored %} --add-ignore {{ path }}{% endfor %}
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:
     kopia_backup_paths: ""
-  when: cloud_backup_paths | length > 0
+  when: kopia_backup_paths | length > 0
 
 - name: Generate string of Kopia backup paths.
   ansible.builtin.set_fact:
     kopia_backup_paths: "{{ kopia_backup_paths }} {{ item.path }}"
-  with_items: "{{ cloud_backup_paths }}"
-  when: cloud_backup_paths | length > 0
+  with_items: "{{ kopia_backup_paths }}"
+  when: kopia_backup_paths | length > 0
 
 - name: Add paths for backup to cron.
   ansible.builtin.cron:
@@ -142,4 +143,4 @@
     hour: "2"
     # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
     job: "bash {{ files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
-  when: cloud_backup_paths | length > 0
+  when: kopia_backup_paths | length > 0
