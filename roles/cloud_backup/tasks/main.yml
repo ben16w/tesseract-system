@@ -72,11 +72,11 @@
     group: root
     mode: 0644
     block: |
-      LOG_DIR="{{ cloud_backup_log_dir }}"
-      LOG_LEVEL="{{ cloud_backup_log_level }}"
-      LOG_FILE="{{ files_path }}"
+      CLOUD_BACKUP_LOG_DIR="{{ cloud_backup_log_dir }}"
+      CLOUD_BACKUP_LOG_LEVEL="{{ cloud_backup_log_level }}"
+      CLOUD_BACKUP_VERIFY_PERCENT="{{ cloud_backup_verify_percent }}"
+      LOG_FILE="{{ log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
-      VERIFY_PERCENT="{{ cloud_verify_percent }}"
 
 - name: Make sure kopia logging directory exists.
   ansible.builtin.file:
