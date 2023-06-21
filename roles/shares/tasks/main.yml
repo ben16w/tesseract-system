@@ -6,6 +6,7 @@
       - shares_host is not none
       - shares_path is not none
       - samba_password is not none
+      - tesseract_username is not none
 
 - name: Install samba software.
   ansible.builtin.apt:

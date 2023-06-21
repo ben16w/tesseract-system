@@ -49,7 +49,7 @@
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ files_path }}/scripts"
+    path: "{{ tesseract_files_path }}/scripts"
     state: directory
     owner: root
     group: root
@@ -57,14 +57,14 @@
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
-    repo: "{{ scripts_repo }}"
-    dest: "{{ files_path }}/scripts"
+    repo: "{{ tesseract_scripts_repo }}"
+    dest: "{{ tesseract_files_path }}/scripts"
     version: main
     force: true
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ files_path }}/scripts/.env"
+    path: "{{ tesseract_files_path }}/scripts/.env"
     marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -75,7 +75,7 @@
       LOCAL_BACKUP_DAILY="{{ local_backups_daily }}"
       LOCAL_BACKUP_WEEKLY="{{ local_backups_weekly }}"
       LOCAL_BACKUP_MONTHLY="{{ local_backups_monthly }}"
-      LOG_FILE="{{ log_file }}"
+      LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
 
@@ -95,5 +95,5 @@
     name: "Local backup."
     minute: "0"
     hour: "1"
-    job: "bash {{ files_path }}/scripts/local_backup.sh{{ backup_directories_string }}"
+    job: "bash {{ tesseract_files_path }}/scripts/local_backup.sh{{ backup_directories_string }}"
   when: local_backup_paths | length > 0

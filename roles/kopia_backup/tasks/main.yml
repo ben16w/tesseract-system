@@ -51,7 +51,7 @@
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ files_path }}/scripts"
+    path: "{{ tesseract_files_path }}/scripts"
     state: directory
     owner: root
     group: root
@@ -59,14 +59,14 @@
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
-    repo: "{{ scripts_repo }}"
-    dest: "{{ files_path }}/scripts"
+    repo: "{{ tesseract_scripts_repo }}"
+    dest: "{{ tesseract_files_path }}/scripts"
     version: main
     force: true
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ files_path }}/scripts/.env"
+    path: "{{ tesseract_files_path }}/scripts/.env"
     marker: "# {mark} kopia_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -76,7 +76,7 @@
       KOPIA_BACKUP_LOG_DIR="{{ kopia_backup_log_dir }}"
       KOPIA_BACKUP_LOG_LEVEL="{{ kopia_backup_log_level }}"
       KOPIA_BACKUP_VERIFY_PERCENT="{{ kopia_backup_verify_percent }}"
-      LOG_FILE="{{ log_file }}"
+      LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
 - name: Make sure kopia logging directory exists.
@@ -139,6 +139,6 @@
     name: "Kopia backup."
     minute: "0"
     hour: "2"
-    # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ files_path }}/scripts/error.sh"
-    job: "bash {{ files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
+    # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ tesseract_files_path }}/scripts/error.sh"
+    job: "bash {{ tesseract_files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
