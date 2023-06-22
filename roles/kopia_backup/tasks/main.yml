@@ -137,8 +137,9 @@
 - name: Add paths for backup to cron.
   ansible.builtin.cron:
     name: "Kopia backup."
-    minute: "0"
-    hour: "2"
+    minute: "{{ kopia_backup_minute }}"
+    hour: "{{ kopia_backup_hour }}"
+    day: "{{ kopia_backup_day }}"
     # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ tesseract_files_path }}/scripts/error.sh"
     job: "bash {{ tesseract_files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0

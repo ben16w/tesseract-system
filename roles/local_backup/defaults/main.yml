@@ -9,9 +9,13 @@ local_backup_paths: []
 
 local_backup_destination: /media/backups
 
-local_backups_daily: 4
-local_backups_weekly: 3
-local_backups_monthly: 2
+local_backups_keep_daily: 4
+local_backups_keep_weekly: 3
+local_backups_keep_monthly: 2
+
+local_backup_minute: 0
+local_backup_hour: 0
+local_backup_day: "*"
 
 email_host: ~
 email_port: ~
