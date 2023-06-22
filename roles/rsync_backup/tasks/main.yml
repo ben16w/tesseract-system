@@ -1,0 +1,97 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - email_host is not none
+      - email_port is not none
+      - email_username is not none
+      - email_password is not none
+
+- name: Install common software.
+  ansible.builtin.apt:
+    pkg:
+      - msmtp
+
+- name: Add msmtp email global config.
+  no_log: true
+  ansible.builtin.blockinfile:
+    path: /etc/msmtprc
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      account default
+      tls on
+      tls_starttls off
+      tls_certcheck off
+      auth login
+      host "{{ email_host }}"
+      port "{{ email_port }}"
+      user "{{ email_username }}"
+      from "{{ email_username }}"
+      password "{{ email_password }}"
+
+- name: Create backups directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ rsync_backup_destination }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Make sure backup destination exists.
+  ansible.builtin.file:
+    path: "{{ rsync_backup_destination }}"
+    state: directory
+    mode: 0755
+
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ tesseract_files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Git checkout scripts to scripts directory.
+  ansible.builtin.git:
+    repo: "{{ tesseract_scripts_repo }}"
+    dest: "{{ tesseract_files_path }}/scripts"
+    version: main
+    force: true
+
+- name: Write .env file.
+  ansible.builtin.blockinfile:
+    path: "{{ tesseract_files_path }}/scripts/.env"
+    marker: "# {mark} rsync_backup ANSIBLE MANAGED BLOCK"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+    block: |
+      RSYNC_BACKUP_DESTINATION="{{ rsync_backup_destination }}"
+      RSYNC_NUMBER_OF_BACKUPS="{{ rsync_number_of_backups }}"
+      LOG_FILE="{{ tesseract_log_file }}"
+      EMAIL_USERNAME="{{ email_username }}"
+
+- name: Initialize an empty string for rsync backup paths.
+  ansible.builtin.set_fact:
+    backup_directories_string: ""
+  when: rsync_backup_paths | length > 0
+
+- name: Generate string of rsync backup paths.
+  ansible.builtin.set_fact:
+    backup_directories_string: "{{ backup_directories_string }} {{ item }}"
+  with_items: "{{ rsync_backup_paths }}"
+  when: rsync_backup_paths | length > 0
+
+- name: Add cron job for rsync backup script.
+  ansible.builtin.cron:
+    name: "Local backup."
+    minute: "{{ rsync_backup_minute }}"
+    hour: "{{ rsync_backup_hour }}"
+    day: "{{ rsync_backup_day }}"
+    job: "bash {{ tesseract_files_path }}/scripts/rsync_backup.sh{{ backup_directories_string }}"
+  when: rsync_backup_paths | length > 0

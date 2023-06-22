@@ -1,0 +1,21 @@
+---
+
+tesseract_log_file: /var/log/tesseract.log
+tesseract_files_path: /root
+
+tesseract_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+
+rsync_backup_paths: []
+
+rsync_backup_destination: /media/backups
+
+rsync_number_of_backups: 1
+
+rsync_backup_minute: 0
+rsync_backup_hour: 0
+rsync_backup_day: "*"
+
+email_host: ~
+email_port: ~
+email_username: ~
+email_password: ~
