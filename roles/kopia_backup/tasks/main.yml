@@ -76,6 +76,7 @@
       KOPIA_BACKUP_LOG_DIR="{{ kopia_backup_log_dir }}"
       KOPIA_BACKUP_LOG_LEVEL="{{ kopia_backup_log_level }}"
       KOPIA_BACKUP_VERIFY_PERCENT="{{ kopia_backup_verify_percent }}"
+      KOPIA_BACKUP_PARALLELISM="{{ kopia_backup_parallelism }}"
       LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 

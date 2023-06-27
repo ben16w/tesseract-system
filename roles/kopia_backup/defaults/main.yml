@@ -13,8 +13,6 @@ email_password: ~
 kopia_backup_log_dir: "/var/log/kopia/"
 kopia_backup_log_level: "debug"
 
-kopia_backup_verify_percent: "0.3"
-
 kopia_backup_minute: 0
 kopia_backup_hour: 0
 kopia_backup_day: "*"
@@ -23,6 +21,9 @@ kopia_backup_bb_key_id: ~
 kopia_backup_bb_key: ~
 kopia_backup_bb_bucket: ~
 kopia_backup_password: ~
+
+kopia_backup_verify_percent: "0.3"
+kopia_backup_parallelism: 10
 
 kopia_backup_ignored: []
 
