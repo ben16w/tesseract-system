@@ -9,7 +9,7 @@ rsync_backup_paths: []
 
 rsync_backup_destination: /media/backups
 
-rsync_number_of_backups: 10
+rsync_backup_max_backups: 10
 
 rsync_backup_minute: 0
 rsync_backup_hour: 0

@@ -72,7 +72,7 @@
     mode: 0644
     block: |
       RSYNC_BACKUP_DESTINATION="{{ rsync_backup_destination }}"
-      RSYNC_NUMBER_OF_BACKUPS="{{ rsync_number_of_backups }}"
+      RSYNC_BACKUP_MAX_BACKUPS="{{ rsync_backup_max_backups }}"
       LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
