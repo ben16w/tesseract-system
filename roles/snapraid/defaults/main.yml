@@ -3,7 +3,7 @@
 snapraid_parity_disks: []
 snapraid_data_disks: []
 
-snapraid_version: "12.1"
+snapraid_version: ~ # i.e. "12.1"
 snapraid_delete_threshold: 250
 
 snapraid_excludes:

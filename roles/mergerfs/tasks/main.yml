@@ -4,11 +4,12 @@
   ansible.builtin.assert:
     that:
       - mergerfs_path is not none
+      - mergerfs_version is not none
 
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
-  when: ansible_architecture == "x86_64"
+  when: '"x86_64" in ansible_architecture'
 
 - name: Setting architecture to arm64.
   ansible.builtin.set_fact:
