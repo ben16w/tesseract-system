@@ -5,33 +5,18 @@
     that:
       - tesseract_username is not none
       - tesseract_password is not none
+      - tesseract_hostname is not none
       - admin_password is not none
 
 - name: Set hostname.
   ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}"
-
-# WARN this can match more than 1 ip
-- name: Set hosts in /etc/host.
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    search_string: "{{ item }}"
-    line: "{% for ip in hostvars[item]['ansible_all_ipv4_addresses'] %}\
-      {% if '192.168.1.' in ip %}\
-      {{ ip  }} {{ item }}\
-      {% endif %}\
-      {% endfor %}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items: "{{ groups.all }}"
-  when: hostvars[item]['ansible_all_ipv4_addresses'] is defined and item != inventory_hostname
+    name: "{{ tesseract_hostname }}"
 
 - name: Set localhost entry in /etc/host.
   ansible.builtin.lineinfile:
     path: /etc/hosts
-    search_string: "{{ inventory_hostname }}"
-    line: "127.0.0.1 {{ inventory_hostname }}"
+    search_string: "{{ tesseract_hostname }}"
+    line: "127.0.0.1 {{ tesseract_hostname }}"
     owner: root
     group: root
     mode: 0644
@@ -83,7 +68,7 @@
       - sudo
     append: true
     generate_ssh_key: true
-    password: "{{ admin_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
+    password: "{{ admin_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
 
 - name: Ensure tesseract group exists.
   ansible.builtin.group:
@@ -97,7 +82,7 @@
     shell: /bin/bash
     group: tesseract
     generate_ssh_key: false
-    password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=inventory_hostname) | string) }}"
+    password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
 
 - name: Make sure tesseract is removed from sudoers.
   ansible.builtin.command:

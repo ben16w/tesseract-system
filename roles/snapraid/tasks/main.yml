@@ -8,6 +8,7 @@
       - email_host is not none
       - email_port is not none
       - email_password is not none
+      - tesseract_hostname is not none
 
 - name: Install C Compiler with package manager.
   ansible.builtin.package:

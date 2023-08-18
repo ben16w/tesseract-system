@@ -1,5 +1,7 @@
 ---
 
+tesseract_hostname: ~
+
 snapraid_parity_disks: []
 snapraid_data_disks: []
 

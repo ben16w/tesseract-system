@@ -8,4 +8,6 @@ admin_password: ~
 tesseract_username: ~
 tesseract_password: ~
 
+tesseract_hostname: ~
+
 tesseract_log_file: "/var/log/tesseract.log"
