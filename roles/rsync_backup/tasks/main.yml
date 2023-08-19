@@ -8,7 +8,7 @@
       - email_username is not none
       - email_password is not none
 
-- name: Install common software.
+- name: Install msmtp.
   ansible.builtin.apt:
     pkg:
       - msmtp

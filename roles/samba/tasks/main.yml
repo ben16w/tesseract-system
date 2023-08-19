@@ -11,7 +11,7 @@
   ansible.builtin.user:
     name: "{{ tesseract_username }}"
 
-- name: Install software.
+- name: Install samba software.
   ansible.builtin.apt:
     pkg:
       - samba

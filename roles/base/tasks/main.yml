@@ -23,13 +23,13 @@
 
 # Set date and time?
 
-- name: Update & upgrade OS.
+- name: Update and upgrade OS.
   ansible.builtin.apt:
     upgrade: full
     update_cache: true
     cache_valid_time: 21600 # 6 Hours
 
-- name: Install common software.
+- name: Install common required software.
   ansible.builtin.apt:
     pkg:
       - python3-setuptools
