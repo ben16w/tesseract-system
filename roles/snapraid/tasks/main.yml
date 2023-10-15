@@ -12,7 +12,10 @@
 
 - name: Install C Compiler with package manager.
   ansible.builtin.package:
-    name: gcc
+    name:
+      - gcc
+      - make
+      - git
     state: present
     update_cache: true
 
@@ -22,14 +25,14 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: '0755'
 
 - name: Check if snapraid is installed.
   ansible.builtin.stat:
     path: /usr/local/bin/snapraid
   register: is_snapraid_installed
 
-- name: When snapraid is installed.
+- name: When snapraid is not installed.
   when: not is_snapraid_installed.stat.exists
   block:
 
@@ -71,7 +74,7 @@
     dest: /etc/snapraid.conf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Ensure snapraid-runner directory exists.
   ansible.builtin.file:
@@ -79,7 +82,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: '0755'
 
 - name: Clone snapraid-runner git repo to directory.
   ansible.builtin.git:
@@ -93,21 +96,21 @@
     dest: /opt/snapraid-runner/snapraid-runner.conf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Make sure data disks paths exist.
   with_items: "{{ snapraid_data_disks }}"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Make sure parity disks paths exist.
   with_items: "{{ snapraid_parity_disks }}"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Add cron job for snapraid-runner.
   ansible.builtin.cron:

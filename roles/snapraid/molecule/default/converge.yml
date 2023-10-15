@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    tesseract_hostname: instance
+    snapraid_version: "12.2"
+    email_username: "email@email.com"
+    email_host: "email.com"
+    email_port: "465"
+    email_password: "password"
+  roles:
+    - role: snapraid

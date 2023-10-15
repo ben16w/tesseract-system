@@ -1,0 +1,8 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Umount /etc/hosts.
+      mount:
+        path: /etc/hosts
+        state: unmounted

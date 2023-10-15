@@ -6,6 +6,12 @@
       - mergerfs_path is not none
       - mergerfs_version is not none
 
+- name: Install fuse.
+  ansible.builtin.package:
+    name: fuse
+    state: present
+    update_cache: true
+
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
@@ -28,6 +34,7 @@
       mergerfs_{{ mergerfs_version }}.{{ ansible_distribution }}-\
       {{ ansible_distribution_release }}_{{ download_arch }}.deb"
     dest: /tmp/mergerfs.deb
+    mode: '0644'
 
 - name: Install mergerfs from download .deb package.
   ansible.builtin.apt:
@@ -37,14 +44,14 @@
   ansible.builtin.file:
     path: "{{ mergerfs_path }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Make sure disk paths exist.
   with_items: "{{ mergerfs_disks }}"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Mount mergerfs filesystems
   when: mergerfs_disks | length > 0

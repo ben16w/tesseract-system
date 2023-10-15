@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    tesseract_username: tesseract
+    shares_host: 127.0.0.1
+    shares_path: /media/shares
+    samba_password: password
+  roles:
+    - role: shares

@@ -19,7 +19,7 @@
     line: "127.0.0.1 {{ tesseract_hostname }}"
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 # Set date and time?
 
@@ -41,6 +41,7 @@
       - git
       - zip
       - wakeonlan
+      - openssh-server
 
 - name: Install setuptools and passlib using pip.
   ansible.builtin.pip:
@@ -112,7 +113,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     block: |
       Match user {{ tesseract_username }}
         ChrootDirectory /media
@@ -134,7 +135,7 @@
     dest: /etc/fail2ban/jail.local
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Make sure fail2ban is enabled and started.
   ansible.builtin.service:

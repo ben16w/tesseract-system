@@ -11,6 +11,12 @@
       - kopia_backup_bb_bucket is not none
       - kopia_backup_password is not none
 
+- name: Install gpg-agent.
+  ansible.builtin.package:
+    name: gpg-agent
+    state: present
+    update_cache: true
+
 - name: Add an Apt signing key for Kopia.
   ansible.builtin.apt_key:
     url: https://kopia.io/signing-key
@@ -21,12 +27,13 @@
     state: present
     update_cache: true
 
-- name: Install Kopia and fuse.
+- name: Install Kopia and other required software.
   ansible.builtin.package:
     name:
       - kopia
       - fuse
       - msmtp
+      - git
     state: present
 
 - name: Add msmtp email global config.
@@ -36,7 +43,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     block: |
       account default
       tls on
@@ -55,7 +62,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: '0755'
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
@@ -71,7 +78,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     block: |
       KOPIA_BACKUP_LOG_DIR="{{ kopia_backup_log_dir }}"
       KOPIA_BACKUP_LOG_LEVEL="{{ kopia_backup_log_level }}"
@@ -86,7 +93,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0775
+    mode: '0775'
 
 - name: Connect Kopia repo.
   register: result

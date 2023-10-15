@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    mergerfs_path: "/media/storage"
+    mergerfs_version: "2.37.1"
+  roles:
+    - role: mergerfs

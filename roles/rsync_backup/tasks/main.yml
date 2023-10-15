@@ -8,10 +8,12 @@
       - email_username is not none
       - email_password is not none
 
-- name: Install msmtp.
+- name: Install msmtp and git.
   ansible.builtin.apt:
     pkg:
       - msmtp
+      - git
+    update_cache: true
 
 - name: Add msmtp email global config.
   no_log: true
@@ -20,7 +22,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     block: |
       account default
       tls on
@@ -33,19 +35,13 @@
       from "{{ email_username }}"
       password "{{ email_password }}"
 
-- name: Create backups directory if it does not exist
+- name: Create backup destination directory if it does not exist
   ansible.builtin.file:
     path: "{{ rsync_backup_destination }}"
     state: directory
     owner: root
     group: root
-    mode: 0775
-
-- name: Make sure backup destination exists.
-  ansible.builtin.file:
-    path: "{{ rsync_backup_destination }}"
-    state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
@@ -53,7 +49,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: '0755'
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
@@ -69,7 +65,7 @@
     create: true
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
     block: |
       RSYNC_BACKUP_DESTINATION="{{ rsync_backup_destination }}"
       RSYNC_BACKUP_MAX_BACKUPS="{{ rsync_backup_max_backups }}"

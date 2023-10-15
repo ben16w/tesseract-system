@@ -16,6 +16,7 @@
     pkg:
       - samba
       - samba-common-bin
+    update_cache: true
 
 - name: Ensure samba is started.
   ansible.builtin.service:
@@ -33,7 +34,7 @@
   ansible.builtin.file:
     path: "{{ samba_path }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Find all directoies in samba path.
   ansible.builtin.find:
@@ -59,7 +60,7 @@
     dest: /etc/samba/smb.conf
     owner: root
     group: root
-    mode: 0644
+    mode: '0644'
 
 - name: Create tesseract samba user if they don't exist yet # Might not update if password changes
   ansible.builtin.shell: >

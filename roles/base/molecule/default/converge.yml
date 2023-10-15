@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    tesseract_username: "tesseract"
+    tesseract_password: "password"
+    tesseract_hostname: "instance"
+    admin_password: "password"
+  roles:
+    - role: base

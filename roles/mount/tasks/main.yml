@@ -4,6 +4,7 @@
   ansible.builtin.apt:
     pkg:
       - cryptsetup
+    update_cache: true
 
 - name: Make sure disk mount paths exists.
   with_items: "{{ mount_disks }}"
@@ -11,13 +12,14 @@
   ansible.builtin.file:
     path: "{{ item.mount_path }}"
     state: directory
-    mode: 0755
+    mode: '0755'
 
 - name: Decrypt disks.
   with_items: "{{ mount_disks }}"
   no_log: true
   ansible.builtin.shell:
-    cmd: >
+    cmd: |
+      set -o pipefail
       echo -n "{{ item.password }}" |
       cryptsetup luksOpen "{{ item.volume_path }}" "luks-{{ item.mount_path | basename }}"
     creates: "/dev/mapper/luks-{{ item.mount_path | basename }}"
