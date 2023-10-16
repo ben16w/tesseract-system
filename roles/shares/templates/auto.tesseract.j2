@@ -1,3 +1,3 @@
 {% for item in shares %}
-{{ shares_path }}/{{ item.name }} -fstype=cifs,{{ (item.read_only == false) | ternary('rw', 'ro') }},credentials=/root/.smbcredentials,vers=3.0,uid={{ created_tesseract_user.uid }},gid={{ created_tesseract_user.group }},file_mode=0660,dir_mode=0770 ://{{ shares_host }}/{{ item.name }}
+{{ shares_path }}/{{ item.name }} -fstype=cifs,{{ (item.read_only == false) | ternary('rw', 'ro') }},credentials=/root/.smbcredentials,vers=3.0,uid={{ created_tesseract_user.uid }},gid={{ created_tesseract_user.group }},file_mode=0755,dir_mode=0755,exec ://{{ shares_host }}/{{ item.name }}
 {% endfor %}
