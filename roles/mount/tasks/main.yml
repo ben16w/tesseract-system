@@ -18,6 +18,7 @@
   with_items: "{{ mount_disks }}"
   no_log: true
   ansible.builtin.shell:
+    executable: /bin/bash
     cmd: |
       set -o pipefail
       echo -n "{{ item.password }}" |
