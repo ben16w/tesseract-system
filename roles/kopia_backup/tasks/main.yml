@@ -129,7 +129,7 @@
       {% for path in kopia_backup_ignored %} --add-ignore {{ path }}{% endfor %}
       {{ item.path }}
   with_items: "{{ kopia_backup_paths }}"
-  when: kopia_backup_paths | length > 0
+  when: kopia_backup_ignored | length > 0
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:
