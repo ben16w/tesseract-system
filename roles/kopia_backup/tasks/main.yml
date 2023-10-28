@@ -133,12 +133,12 @@
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:
-    kopia_backup_paths: ""
+    kopia_backup_paths_string: ""
   when: kopia_backup_paths | length > 0
 
 - name: Generate string of Kopia backup paths.
   ansible.builtin.set_fact:
-    kopia_backup_paths: "{{ kopia_backup_paths }} {{ item.path }}"
+    kopia_backup_paths_string: "{{ kopia_backup_paths_string }} {{ item.path }}"
   with_items: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
 
@@ -148,6 +148,5 @@
     minute: "{{ kopia_backup_minute }}"
     hour: "{{ kopia_backup_hour }}"
     day: "{{ kopia_backup_day }}"
-    # job: "{ kopia snapshot {{ item.path }}; } 2>&1 | bash {{ tesseract_files_path }}/scripts/error.sh"
-    job: "bash {{ tesseract_files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths }}"
+    job: "bash {{ tesseract_files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths_string }}"
   when: kopia_backup_paths | length > 0
