@@ -1,0 +1,18 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+
+    # Check if the volume file exists.
+    - name: Check if the volume file exists.
+      ansible.builtin.stat:
+        path: "/tmp/file.image"
+      register: volume_file_stat
+
+    # Fail if the volume file does not exist.
+    - name: Fail if the volume file does not exist.
+      ansible.builtin.fail:
+        msg: "The volume file does not exist."
+      when: volume_file_stat.stat.exists is false
