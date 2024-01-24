@@ -1,16 +1,15 @@
 SHELL := /bin/bash
 
-# Variable definitions.
-TESTING_DISTROS = "debian12 centos8 ubuntu2204 ubuntu2004"
-
 # Show help.
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
 	@echo ""
 	@echo "Targets:"
-	@echo "  test         	un all tests for all roles in the repository using molecule."
+	@echo "  help         	Show this help."
+	@echo "  test         	Run all tests for all roles in the repository using molecule."
 	@echo "  test-changed 	Run all tests for a roles which have been modified since the last commit using molecule."
+	@echo "  test-distros 	Run all tests for all roles in the repository using molecule on multiple distros."
 	@echo "  lint         	Lint all roles in the repository using yamllint and ansible-lint."
 	@echo "  update-molecule Overwrite all molecule.yml files in roles from the molecule.yml in the repository root."
 
@@ -36,19 +35,6 @@ test:
 	done ;\
 	echo "Success!"
 
-# Run all tests for all roles in the repository using molecule on a specific distros.
-.PHONY: test-distros
-test-distros:
-	@set -e ;\
-	for moleculedir in roles/*/molecule; do \
-		for distro in $(shell echo $(TESTING_DISTROS)); do \
-			echo "Testing role: $${moleculedir} on $${distro}" ;\
-			export MOLECULE_DISTRO=$${distro} ;\
-			$(molecule-test) ;\
-		done ;\
-	done ;\
-	echo "Success!"
-
 # Run all tests for a roles which have been modified since the last commit using molecule.
 .PHONY: test-changed
 test-changed:
@@ -58,6 +44,23 @@ test-changed:
 		moleculedir="$${roledir}/molecule" ;\
 		echo "Testing role: $${moleculedir}" ;\
 		$(molecule-test) ;\
+	done ;\
+	echo "Success!"
+
+# Run all tests for all roles in the repository using molecule on a specific distros.
+.PHONY: test-distros
+test-distros:
+	@if [ -z "$$DISTRO_LIST" ]; then \
+		echo "ERROR: DISTRO_LIST environment variable is not defined." ;\
+		exit 1 ;\
+	fi
+	@set -e ;\
+	for moleculedir in roles/*/molecule; do \
+		for distro in $(shell echo $$DISTRO_LIST); do \
+			echo "Testing role: $${moleculedir} on $${distro}" ;\
+			export MOLECULE_DISTRO=$${distro} ;\
+			$(molecule-test) ;\
+		done ;\
 	done ;\
 	echo "Success!"
 
