@@ -3,8 +3,14 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - mergerfs_path is not none
+      - mergerfs_pool is not none
       - mergerfs_version is not none
+
+- name: Assert that mergerfs_cached_pool is defined when mergerfs_cache_disk is defined.
+  when: mergerfs_cache_disk is defined
+  ansible.builtin.assert:
+    that:
+      - mergerfs_cached_pool is not none
 
 - name: Install fuse.
   ansible.builtin.package:
@@ -42,7 +48,7 @@
 
 - name: Make sure mountpoint exists.
   ansible.builtin.file:
-    path: "{{ mergerfs_path }}"
+    path: "{{ mergerfs_pool }}"
     state: directory
     mode: '0755'
 
@@ -58,9 +64,9 @@
   ansible.builtin.mount:
     fstype: fuse.mergerfs
     src: "{{ ':'.join(mergerfs_disks) }}"
-    path: "{{ mergerfs_path }}"
+    path: "{{ mergerfs_pool }}"
     opts: "minfreespace={{ mergerfs_min_free_space }},\
-      fsname={{ mergerfs_path | basename }},\
+      fsname={{ mergerfs_pool | basename }},\
       allow_other,\
       use_ino,\
       cache.files=partial,\
@@ -69,3 +75,39 @@
       moveonenospc=true,\
       noauto"
     state: mounted
+
+- name: When mergerfs_cache_disk is defined.
+  when: mergerfs_cache_disk is defined
+  block:
+    - name: Make sure mergerfs_cache_disk path exists.
+      ansible.builtin.file:
+        path: "{{ mergerfs_cache_disk }}"
+        state: directory
+        mode: '0755'
+
+    - name: Make sure cached path exists.
+      ansible.builtin.file:
+        path: "{{ mergerfs_cached_pool }}"
+        state: directory
+        mode: '0755'
+
+    - name: Add mergerfs_cache_disk to mergerfs_disks
+      ansible.builtin.set_fact:
+        mergerfs_disks_combined: "{{ [mergerfs_cache_disk] + mergerfs_disks }}"
+
+    - name: Mount mergerfs filesystems
+      when: mergerfs_disks | length > 0
+      ansible.builtin.mount:
+        fstype: fuse.mergerfs
+        src: "{{ ':'.join(mergerfs_disks_combined) }}"
+        path: "{{ mergerfs_cached_pool }}"
+        opts: "minfreespace={{ mergerfs_min_free_space }},\
+          fsname={{ mergerfs_cached_pool | basename }},\
+          allow_other,\
+          use_ino,\
+          cache.files=partial,\
+          dropcacheonclose=true,\
+          category.create=mfs,\
+          moveonenospc=true,\
+          noauto"
+        state: mounted

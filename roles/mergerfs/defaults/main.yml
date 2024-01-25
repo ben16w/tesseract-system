@@ -1,7 +1,11 @@
 ---
 
 mergerfs_disks: []
-mergerfs_path: ~
+mergerfs_cache_disk: ~
+
+mergerfs_pool: ~
+mergerfs_cached_pool: ~
+
 
 mergerfs_version: ~ # i.e. "2.33.5"
 
