@@ -6,12 +6,12 @@
       - mergerfs_pool is not none
       - mergerfs_version is not none
 
-- name: Assert that mergerfs_cached_pool is defined when mergerfs_cache_disk is defined.
-  when: mergerfs_caching_enabled is not false
+- name: Assert that mergerfs_cache_pool is defined when mergerfs_cache_disk is defined.
+  when: mergerfs_cache_enabled is not false
   ansible.builtin.assert:
     that:
       - mergerfs_cache_disk is not none
-      - mergerfs_cached_pool is not none
+      - mergerfs_cache_pool is not none
 
 - name: Install fuse.
   ansible.builtin.package:
@@ -78,7 +78,7 @@
     state: mounted
 
 - name: When mergerfs_cache_disk is defined.
-  when: mergerfs_caching_enabled is not false
+  when: mergerfs_cache_enabled is not false
   block:
     - name: Make sure mergerfs_cache_disk path exists.
       ansible.builtin.file:
@@ -101,9 +101,9 @@
       ansible.builtin.mount:
         fstype: fuse.mergerfs
         src: "{{ ':'.join(mergerfs_disks_combined) }}"
-        path: "{{ mergerfs_cached_pool }}"
+        path: "{{ mergerfs_cache_pool }}"
         opts: "minfreespace={{ mergerfs_min_free_space }},\
-          fsname={{ mergerfs_cached_pool | basename }},\
+          fsname={{ mergerfs_cache_pool | basename }},\
           allow_other,\
           use_ino,\
           cache.files=partial,\
@@ -112,3 +112,11 @@
           moveonenospc=true,\
           noauto"
         state: mounted
+
+    - name: Ensure cron job exists to rebalance cache disk to backing pool.
+      ansible.builtin.cron:
+        name: mergerfs_rebalance
+        minute: "{{ mergerfs_cache_rebalance_minute }}"
+        hour: "{{ mergerfs_cache_rebalance_hour }}"
+        day: "{{ mergerfs_cache_rebalance_day }}"
+        job: "bash {{ tesseract_files_path }}/scripts/rebalance_mergerfs.sh"
