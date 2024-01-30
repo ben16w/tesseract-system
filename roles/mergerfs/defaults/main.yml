@@ -1,4 +1,5 @@
 ---
+tesseract_files_path: "/root"
 
 mergerfs_disks: []
 mergerfs_pool: ~

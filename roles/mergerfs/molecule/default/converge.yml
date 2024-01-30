@@ -2,7 +2,17 @@
 - name: Converge
   hosts: all
   vars:
-    mergerfs_pool: "/media/storage"
+    mergerfs_disks:
+      - /media/disk1
+      - /media/disk2
+      - /media/disk3
+    mergerfs_pool: "/media/backing"
+
+    mergerfs_cache_enabled: true
+    mergerfs_cache_pool: "/media/storage"
+    mergerfs_cache_disk: "/media/cache"
+
     mergerfs_version: "2.39.0"
+
   roles:
     - role: mergerfs

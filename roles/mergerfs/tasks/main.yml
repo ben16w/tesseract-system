@@ -80,15 +80,15 @@
 - name: When mergerfs_cache_disk is defined.
   when: mergerfs_cache_enabled is not false
   block:
-    - name: Make sure mergerfs_cache_disk path exists.
+    - name: Make sure cache pool exists.
       ansible.builtin.file:
-        path: "{{ mergerfs_cache_disk }}"
+        path: "{{ mergerfs_cache_pool }}"
         state: directory
         mode: '0755'
 
-    - name: Make sure cached path exists.
+    - name: Make sure cache disk path exists.
       ansible.builtin.file:
-        path: "{{ mergerfs_cached_pool }}"
+        path: "{{ mergerfs_cache_disk }}"
         state: directory
         mode: '0755'
 
