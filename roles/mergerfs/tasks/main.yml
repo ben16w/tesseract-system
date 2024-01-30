@@ -7,9 +7,10 @@
       - mergerfs_version is not none
 
 - name: Assert that mergerfs_cached_pool is defined when mergerfs_cache_disk is defined.
-  when: mergerfs_cache_disk is defined
+  when: mergerfs_caching_enabled is not false
   ansible.builtin.assert:
     that:
+      - mergerfs_cache_disk is not none
       - mergerfs_cached_pool is not none
 
 - name: Install fuse.
@@ -77,7 +78,7 @@
     state: mounted
 
 - name: When mergerfs_cache_disk is defined.
-  when: mergerfs_cache_disk is defined
+  when: mergerfs_caching_enabled is not false
   block:
     - name: Make sure mergerfs_cache_disk path exists.
       ansible.builtin.file:
