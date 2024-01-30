@@ -6,7 +6,7 @@
       - mergerfs_pool is not none
       - mergerfs_version is not none
 
-- name: Assert that mergerfs_cache_pool is defined when mergerfs_cache_disk is defined.
+- name: Assert that all required inputs have been provided if cache is enabled.
   when: mergerfs_cache_enabled is not false
   ansible.builtin.assert:
     that:

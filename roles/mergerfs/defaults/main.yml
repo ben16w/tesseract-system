@@ -7,7 +7,7 @@ mergerfs_cache_enabled: false
 mergerfs_cache_pool: ~
 mergerfs_cache_disk: ~
 mergerfs_cache_rebalance_minute: 0
-mergerfs_cache_rebalance_hour: 0
+mergerfs_cache_rebalance_hour: 8
 mergerfs_cache_rebalance_day: "*"
 
 mergerfs_version: ~ # i.e. "2.33.5"

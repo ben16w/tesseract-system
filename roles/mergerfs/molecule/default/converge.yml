@@ -3,6 +3,6 @@
   hosts: all
   vars:
     mergerfs_pool: "/media/storage"
-    mergerfs_version: "2.37.1"
+    mergerfs_version: "2.39.0"
   roles:
     - role: mergerfs
