@@ -1,0 +1,25 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: Create 3 disk directories.
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - /media/disk1
+        - /media/disk2
+        - /media/disk3
+
+    - name: Create multiple random files with random data
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          for i in {1..5}; do
+            dd if=/dev/urandom of="{{ item }}/$(cat /dev/urandom | tr -cd 'a-f0-9' | head -c 16)" bs=1M count=1;
+          done
+      with_items:
+        - /media/disk1
+        - /media/disk2
+        - /media/disk3
