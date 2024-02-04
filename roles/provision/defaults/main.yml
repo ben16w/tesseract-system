@@ -1,0 +1,11 @@
+---
+
+tesseract_files_path: "/root"
+
+tesseract_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+
+provision_volumes: []
+  # - volume_file: "/path/to/file.image"
+  #   generate_data: true
+  #   size: 2G
+  #   password: "password"

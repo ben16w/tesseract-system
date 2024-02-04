@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    provision_volumes:
+      - volume_file: "/tmp/file.image"
+        generate_data: true
+        size: 1G
+        password: "password"
+  roles:
+    - role: provision
