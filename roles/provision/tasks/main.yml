@@ -1,0 +1,33 @@
+---
+- name: Update repositories cache and install cryptsetup and git packages.
+  ansible.builtin.apt:
+    name:
+      - cryptsetup
+      - git
+    update_cache: true
+
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ tesseract_files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Git checkout scripts to scripts directory.
+  ansible.builtin.git:
+    repo: "{{ tesseract_scripts_repo }}"
+    dest: "{{ tesseract_files_path }}/scripts"
+    version: main
+    force: true
+
+- name: Run provision_disk script.
+  with_items: "{{ provision_volumes }}"
+  ansible.builtin.command:
+    cmd: >
+      /bin/bash {{ tesseract_files_path }}/scripts/provision_volume.sh
+      {% if item.generate_data == true %}-d{% endif %}
+      -s '{{ item.size }}'
+      -p '{{ item.password }}'
+      '{{ item.volume_file }}'
+    creates: "{{ item.volume_file }}"

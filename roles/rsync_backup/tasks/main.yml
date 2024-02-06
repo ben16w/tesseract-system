@@ -85,7 +85,7 @@
 
 - name: Add cron job for rsync backup script.
   ansible.builtin.cron:
-    name: "Local backup."
+    name: "Rsync backup."
     minute: "{{ rsync_backup_minute }}"
     hour: "{{ rsync_backup_hour }}"
     day: "{{ rsync_backup_day }}"

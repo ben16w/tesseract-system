@@ -3,6 +3,18 @@
   hosts: all
   tasks:
     - name: Umount /etc/hosts.
-      mount:
+      ansible.builtin.mount:
         path: /etc/hosts
         state: unmounted
+
+    - name: Update packages and install dbus.
+      ansible.builtin.package:
+        update_cache: true
+        name: dbus
+        state: present
+
+    - name: Start dbus.
+      ansible.builtin.service:
+        name: dbus
+        state: started
+        enabled: true
