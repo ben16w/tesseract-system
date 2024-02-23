@@ -1,6 +1,8 @@
 
+# SnapRAID configuration file
+
 {% for parity_disk in snapraid_parity_disks %}
-parity {{ parity_disk }}/snapraid.parity
+{{ loop.index }}-parity {{ parity_disk }}/snapraid.parity
 {% endfor %}
 
 content /var/snapraid/snapraid.content

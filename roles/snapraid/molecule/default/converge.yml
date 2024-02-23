@@ -3,10 +3,19 @@
   hosts: all
   vars:
     tesseract_hostname: instance
-    snapraid_version: "12.2"
     email_username: "email@email.com"
     email_host: "email.com"
     email_port: "465"
     email_password: "password"
+
+    snapraid_version: "12.3"
+    snapraid_data_disks:
+      - /mnt/disk1
+      - /mnt/disk2
+      - /mnt/disk3
+    snapraid_parity_disks:
+      - /mnt/parity1
+      - /mnt/parity2
+      - /mnt/parity3
   roles:
     - role: snapraid

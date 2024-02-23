@@ -4,3 +4,8 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+
+    - name: Run the snapraid status command and check output for errors.
+      command: snapraid status
+      register: snapraid_status
+      failed_when: snapraid_status.rc != 0 and "WARNING!" not in snapraid_status.stderr
