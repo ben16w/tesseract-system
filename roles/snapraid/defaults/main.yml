@@ -8,6 +8,8 @@ snapraid_parity_disks: []
 snapraid_version: ~ # i.e. "12.1"
 snapraid_delete_threshold: 250
 
+snapraid_cron_hour: "4,12,20"
+
 snapraid_excludes:
   - /Downloads/
   - /Import/
