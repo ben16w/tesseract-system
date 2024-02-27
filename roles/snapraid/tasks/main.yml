@@ -120,8 +120,8 @@
     - name: Add cron job for snapraid-runner.
       ansible.builtin.cron:
         name: "Snapraid runner."
-        minute: "0"
         hour: "{{ snapraid_cron_hour }}"
+        minute: "{{ snapraid_cron_minute }}"
         job: >
           python3 /opt/snapraid-runner/snapraid-runner.py
           --conf /opt/snapraid-runner/snapraid-runner.conf

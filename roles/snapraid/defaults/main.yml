@@ -9,6 +9,7 @@ snapraid_version: ~ # i.e. "12.1"
 snapraid_delete_threshold: 250
 
 snapraid_cron_hour: "4,12,20"
+snapraid_cron_minute: "0"
 
 snapraid_excludes:
   - /Downloads/
