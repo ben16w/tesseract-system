@@ -34,6 +34,7 @@
     pkg:
       - python3-setuptools
       - python3-pip
+      - python3-passlib
       - ntp
       - net-tools
       - rsync
@@ -42,12 +43,6 @@
       - zip
       - wakeonlan
       - openssh-server
-
-- name: Install setuptools and passlib using pip.
-  ansible.builtin.pip:
-    name:
-      - setuptools
-      - passlib
 
 - name: Set nano as default editor for root.
   ansible.builtin.lineinfile:
