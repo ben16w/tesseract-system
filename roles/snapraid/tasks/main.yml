@@ -104,14 +104,14 @@
         mode: '0644'
 
     - name: Make sure data disks paths exist.
-      with_items: "{{ snapraid_data_disks }}"
+      loop: "{{ snapraid_data_disks }}"
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         mode: '0755'
 
     - name: Make sure parity disks paths exist.
-      with_items: "{{ snapraid_parity_disks }}"
+      loop: "{{ snapraid_parity_disks }}"
       ansible.builtin.file:
         path: "{{ item }}"
         state: directory

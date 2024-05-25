@@ -7,7 +7,7 @@
     update_cache: true
 
 - name: Make sure disk mount paths exists.
-  with_items: "{{ mount_disks }}"
+  loop: "{{ mount_disks }}"
   no_log: true
   ansible.builtin.file:
     path: "{{ item.mount_path }}"
@@ -15,7 +15,7 @@
     mode: '0755'
 
 - name: Decrypt disks.
-  with_items: "{{ mount_disks }}"
+  loop: "{{ mount_disks }}"
   no_log: true
   ansible.builtin.shell:
     executable: /bin/bash
@@ -26,7 +26,7 @@
     creates: "/dev/mapper/luks-{{ item.mount_path | basename }}"
 
 - name: Mount disks.
-  with_items: "{{ mount_disks }}"
+  loop: "{{ mount_disks }}"
   no_log: true
   ansible.posix.mount:
     path: "{{ item.mount_path }}"

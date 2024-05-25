@@ -47,7 +47,7 @@
     mode: '0755'
 
 - name: Make sure disk paths exist.
-  with_items: "{{ mergerfs_disks }}"
+  loop: "{{ mergerfs_disks }}"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory

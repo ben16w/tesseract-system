@@ -83,7 +83,7 @@
 - name: Generate string of local backup paths.
   ansible.builtin.set_fact:
     backup_directories_string: "{{ backup_directories_string }} {{ item }}"
-  with_items: "{{ local_backup_paths }}"
+  loop: "{{ local_backup_paths }}"
   when: local_backup_paths | length > 0
 
 - name: Add cron job for local backup script.

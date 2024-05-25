@@ -80,7 +80,7 @@
 - name: Generate string of rsync backup paths.
   ansible.builtin.set_fact:
     backup_directories_string: "{{ backup_directories_string }} {{ item }}"
-  with_items: "{{ rsync_backup_paths }}"
+  loop: "{{ rsync_backup_paths }}"
   when: rsync_backup_paths | length > 0
 
 - name: Add cron job for rsync backup script.
