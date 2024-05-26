@@ -6,7 +6,6 @@
     email_host: "email.com"
     email_port: "465"
     email_password: "password"
-
     mirror_backup_paths:
       - /tmp/data
   roles:
