@@ -1,0 +1,30 @@
+---
+
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+
+    - name: Ensire directory /tmp/data exists.
+      ansible.builtin.file:
+        path: /tmp/data
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generate random 1MB files in /tmp/data.
+      ansible.builtin.command:
+        cmd: dd if=/dev/urandom of=/tmp/data/file{{ item }} bs=1M count=10
+      with_sequence: start=1 end=10
+
+    - name: Take backup of /tmp/data.
+      ansible.builtin.command:
+        cmd: bash {{ tesseract_files_path }}/scripts/mirror_backup.sh /tmp/data/ -d
+
+    - name: Verify that the backup directories exist.
+      ansible.builtin.stat:
+        path: "{{ mirror_backup_destination }}/data-backup"
+      register: backup_directories
+      failed_when: backup_directories.stat.exists is false
