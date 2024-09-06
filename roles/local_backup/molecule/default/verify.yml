@@ -35,7 +35,7 @@
     - name: Verify that the backup directories exist.
       ansible.builtin.stat:
         path: "{{ local_backup_destination }}/{{ item }}"
-      with_items:
+      loop:
         - data-backup-monthly-20100101.tar.gz
         - data-backup-monthly-20200101.tar.gz
       register: backup_directories

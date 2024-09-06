@@ -7,6 +7,7 @@
     email_port: "465"
     email_password: "password"
     mirror_backup_paths:
-      - /tmp/data
+      - path: /tmp/data
+        stop_docker: false
   roles:
     - role: mirror_backup

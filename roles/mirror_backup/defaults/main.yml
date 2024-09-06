@@ -6,6 +6,11 @@ tesseract_files_path: /root
 tesseract_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
 
 mirror_backup_paths: []
+# Example:
+# mirror_backup_paths:
+#   - path: /media/appdata
+#     stop_docker: true
+#   - path: /media/local
 
 mirror_backup_destination: /media/backups
 

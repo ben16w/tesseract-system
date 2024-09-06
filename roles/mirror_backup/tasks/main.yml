@@ -75,10 +75,12 @@
 
 - name: Add cron job for mirror backup script.
   ansible.builtin.cron:
-    name: "Mirror backup for {{ item | basename }}."
+    name: "Mirror backup for {{ item.path | basename }}."
     minute: "{{ mirror_backup_minute }}"
     hour: "{{ mirror_backup_hour }}"
     day: "{{ mirror_backup_day }}"
-    job: "bash {{ tesseract_files_path }}/scripts/mirror_backup.sh {{ item }}"
+    job: >
+      bash {{ tesseract_files_path }}/scripts/mirror_backup.sh {{ item.path }}
+      {{ '-d' if not item.stop_docker | default(false) }}
   when: mirror_backup_paths | length > 0
   loop: "{{ mirror_backup_paths }}"

@@ -69,9 +69,9 @@
     mode: '0644'
     block: |
       LOCAL_BACKUP_DESTINATION="{{ local_backup_destination }}"
-      LOCAL_BACKUP_KEEP_DAILY="{{ local_backups_keep_daily }}"
-      LOCAL_BACKUP_KEEP_WEEKLY="{{ local_backups_keep_weekly }}"
-      LOCAL_BACKUP_KEEP_MONTHLY="{{ local_backups_keep_monthly }}"
+      LOCAL_BACKUP_KEEP_DAILY="{{ local_backup_keep_daily }}"
+      LOCAL_BACKUP_KEEP_WEEKLY="{{ local_backup_keep_weekly }}"
+      LOCAL_BACKUP_KEEP_MONTHLY="{{ local_backup_keep_monthly }}"
       LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
@@ -93,5 +93,5 @@
     minute: "{{ local_backup_minute }}"
     hour: "{{ local_backup_hour }}"
     day: "{{ local_backup_day }}"
-    job: "bash {{ tesseract_files_path }}/scripts/local_backup.sh{{ backup_directories_string }}"
+    job: "bash {{ tesseract_files_path }}/scripts/local_backup.sh {{ backup_directories_string }}"
   when: local_backup_paths | length > 0

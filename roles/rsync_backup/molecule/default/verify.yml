@@ -35,7 +35,7 @@
     - name: Verify that the backup directories exist.
       ansible.builtin.stat:
         path: "{{ rsync_backup_destination }}/{{ item }}"
-      with_items:
+      loop:
         - data-backup-20100101
         - data-backup-20200101
       register: backup_directories
