@@ -57,6 +57,9 @@ if [ -f "$SCRIPT_DIR"/.env ]; then
   source "$SCRIPT_DIR"/.env || exit 1
 fi
 
+# Check if another instance of script is running
+pidof -o %PPID -x "$0" >/dev/null && error_exit "Script $0 already running"
+
 # Display usage information if -h or --help option is provided
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
   usage
