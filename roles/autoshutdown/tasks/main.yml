@@ -1,0 +1,31 @@
+---
+
+- name: Ensure cron, ifstat and sysstat are installed.
+  ansible.builtin.package:
+    name:
+      - cron
+      - ifstat
+      - sysstat
+    update_cache: true
+
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ tesseract_files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: Template autoshutdown script to scripts directory.
+  ansible.builtin.template:
+    src: templates/autoshutdown.sh.j2
+    dest: "{{ tesseract_files_path }}/scripts/autoshutdown.sh"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create cron job to check server activity and shutdown if idle.
+  ansible.builtin.cron:
+    name: "Check server activity and shutdown if idle."
+    minute: "*/{{ autoshutdown_polling_interval }}"
+    job: "bash {{ tesseract_files_path }}/scripts/autoshutdown.sh"
