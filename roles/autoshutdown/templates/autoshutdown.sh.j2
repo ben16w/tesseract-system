@@ -106,7 +106,7 @@ if [ "$NET_ACTIVITY" -lt "$AUTOSHUTDOWN_MAX_NETWORK" ] && [ "$CPU_ACTIVITY" -lt 
       info "Running pre-shutdown command: {{ command }}"
       {{ command }}
 {% endfor %}
-      if [ -z "$DRY_RUN" ]; then
+      if [ "$DRY_RUN" == "false" ]; then
         # Shut down the server if not in dry run mode
         info "Shutting down the server."
         shutdown -h now

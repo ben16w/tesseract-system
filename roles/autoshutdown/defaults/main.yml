@@ -5,5 +5,5 @@ tesseract_files_path: "/root"
 autoshutdown_idle_time: 21600 # Time in seconds to consider the server idle
 autoshutdown_max_cpu: 25 # Maximum CPU usage percentage to consider the server idle
 autoshutdown_max_network: 500  # Maximum network usage in kbytes/sec to consider the server idle
-autoshutdown_polling_interval: 15 # Polling interval in minutes
+autoshutdown_polling_interval: 10 # Polling interval in minutes
 autoshutdown_pre_shutdown_commands: []
