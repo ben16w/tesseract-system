@@ -13,8 +13,9 @@ LOG_FILE="/var/log/tesseract.log"
 # Dry run flag to test the script without actual shutdown
 DRY_RUN="false"
 
-# Get the directory of the current script
+# Get the directory and filename of the current script
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SCRIPT_NAME=$(basename "$0")
 
 # Function to display usage information
 function usage()
@@ -49,7 +50,7 @@ function log()
 
 # Check if the script is running as root
 if [[ $EUID -ne 0 ]]; then
-  error_exit "Script $0 must be run as root" 
+  error_exit "Script $0 must be run as root." 
 fi
 
 # Source environment variables from the .env file if it exists
@@ -58,7 +59,9 @@ if [ -f "$SCRIPT_DIR"/.env ]; then
 fi
 
 # Check if another instance of script is running
-pidof -o %PPID -x "$0" >/dev/null && error_exit "Script $0 already running"
+if [[ $(pgrep -f "$SCRIPT_NAME") != "$$" ]]; then
+  error_exit "Another instance of is $0 already running! Exiting."
+fi
 
 # Display usage information if -h or --help option is provided
 if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
