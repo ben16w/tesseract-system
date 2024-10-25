@@ -15,7 +15,6 @@ DRY_RUN="false"
 
 # Get the directory and filename of the current script
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-SCRIPT_NAME=$(basename "$0")
 
 # Function to display usage information
 function usage()
@@ -50,17 +49,12 @@ function log()
 
 # Check if the script is running as root
 if [[ $EUID -ne 0 ]]; then
-  error_exit "Script $0 must be run as root." 
+  error_exit "Script $0 must be run as root."
 fi
 
 # Source environment variables from the .env file if it exists
 if [ -f "$SCRIPT_DIR"/.env ]; then
   source "$SCRIPT_DIR"/.env || exit 1
-fi
-
-# Check if another instance of script is running
-if [[ $(pgrep -f "$SCRIPT_NAME") != "$$" ]]; then
-  error_exit "Another instance of is $0 already running! Exiting."
 fi
 
 # Display usage information if -h or --help option is provided
@@ -96,18 +90,18 @@ CPU_ACTIVITY=$(mpstat 1 1 | tail -n 1 | awk '{print 100 - $NF}' | awk '{printf("
 # Check if all activities are idle
 if [ "$NET_ACTIVITY" -lt "$AUTOSHUTDOWN_MAX_NETWORK" ] && [ "$CPU_ACTIVITY" -lt "$AUTOSHUTDOWN_MAX_CPU" ]; then
   info "Server is idle."
-  if [ ! -f /tmp/idle_time ]; then
+  if [ ! -f /tmp/autoshutdown ]; then
     # Save the current time if idle time file does not exist
     info "Saving the current time."
-    date +%s > /tmp/idle_time
+    date +%s > /tmp/autoshutdown
   else
     # Calculate idle duration
-    LAST_IDLE=$(cat /tmp/idle_time)
+    LAST_IDLE=$(cat /tmp/autoshutdown)
     CURRENT_TIME=$(date +%s)
     IDLE_DURATION=$((CURRENT_TIME - LAST_IDLE))
     if [ "$IDLE_DURATION" -ge "$AUTOSHUTDOWN_IDLE_TIME" ]; then
       info "Server has been idle for $IDLE_DURATION seconds."
-      rm -f /tmp/idle_time
+      rm -f /tmp/autoshutdown
 {% for command in autoshutdown_pre_shutdown_commands %}
       info "Running pre-shutdown command: {{ command }}"
       {{ command }}
@@ -126,5 +120,5 @@ else
   # Reset idle time if the server is not idle
   info "Server is not idle, resetting idle time."
   info "CPU: $CPU_ACTIVITY%, Network: $NET_ACTIVITY KB/s"
-  rm -f /tmp/idle_time
+  rm -f /tmp/autoshutdown
 fi

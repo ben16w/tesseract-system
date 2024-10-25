@@ -28,4 +28,4 @@
   ansible.builtin.cron:
     name: "Check server activity and shutdown if idle."
     minute: "*/{{ autoshutdown_polling_interval }}"
-    job: "bash {{ tesseract_files_path }}/scripts/autoshutdown.sh"
+    job: "flock -n /tmp/autoshutdown.lockfile {{ tesseract_files_path }}/scripts/autoshutdown.sh"
