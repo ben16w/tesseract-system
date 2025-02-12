@@ -22,7 +22,7 @@
     force: true
 
 - name: Run provision_disk script.
-  with_items: "{{ provision_volumes }}"
+  loop: "{{ provision_volumes }}"
   ansible.builtin.command:
     cmd: >
       /bin/bash {{ tesseract_files_path }}/scripts/provision_volume.sh

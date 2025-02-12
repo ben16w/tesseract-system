@@ -1,0 +1,29 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+
+    - name: Run the autoshutdown script.
+      ansible.builtin.command:
+        cmd: "{{ tesseract_files_path }}/scripts/autoshutdown.sh -d"
+      register: first_run
+      failed_when: first_run.rc != 0
+      changed_when: false
+
+    - name: Wait 1 second.
+      ansible.builtin.wait_for:
+        timeout: 1
+        state: started
+
+    - name: Run the autoshutdown script again.
+      ansible.builtin.command:
+        cmd: "{{ tesseract_files_path }}/scripts/autoshutdown.sh -d"
+      register: second_run
+      failed_when: second_run.rc != 0
+      changed_when: false
+
+    - name: Check that the script output contains 'TEST SUCCESSFUL'.
+      ansible.builtin.assert:
+        that: "'TEST SUCCESSFUL' in second_run.stdout"

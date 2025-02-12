@@ -22,6 +22,7 @@ kopia_backup_bb_key: ~
 kopia_backup_bb_bucket: ~
 kopia_backup_password: ~
 
+kopia_backup_verify_enabled: true
 kopia_backup_verify_percent: "0.1"
 kopia_backup_parallelism: 10
 

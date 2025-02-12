@@ -58,7 +58,7 @@
       password={{ samba_password }}
 
 # - name: Change share ownership to tesseract user.
-#   with_items: "{{ shares }}"
+#   loop: "{{ shares }}"
 #   ansible.builtin.file:
 #     path: "{{ samba_path }}/{{ item.name }}"
 #     state: directory

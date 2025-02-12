@@ -4,3 +4,39 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+
+    - name: Install datefudge.
+      ansible.builtin.package:
+        name: datefudge
+        state: present
+        update_cache: true
+
+    - name: Ensire directory /tmp/data exists.
+      ansible.builtin.file:
+        path: /tmp/data
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Generate random 1MB files in /tmp/data.
+      ansible.builtin.command:
+        cmd: dd if=/dev/urandom of=/tmp/data/file{{ item }} bs=1M count=10
+      with_sequence: start=1 end=10
+
+    - name: Set time to 2010-01-01 and take backup of /tmp/data.
+      ansible.builtin.command:
+        cmd: datefudge "2010-01-01" bash {{ tesseract_files_path }}/scripts/rsync_backup.sh /tmp/data/
+
+    - name: Set time to 2020-01-01 and take backup of /tmp/data.
+      ansible.builtin.command:
+        cmd: datefudge "2020-01-01" bash {{ tesseract_files_path }}/scripts/rsync_backup.sh /tmp/data/
+
+    - name: Verify that the backup directories exist.
+      ansible.builtin.stat:
+        path: "{{ rsync_backup_destination }}/{{ item }}"
+      loop:
+        - data-backup-20100101
+        - data-backup-20200101
+      register: backup_directories
+      failed_when: backup_directories.stat.exists is false

@@ -8,12 +8,13 @@
       - email_username is not none
       - email_password is not none
 
-- name: Install msmtp, git and cron.
+- name: Install msmtp, git, cron and rsync.
   ansible.builtin.package:
     name:
       - msmtp
       - git
       - cron
+      - rsync
     update_cache: true
 
 - name: Add msmtp email global config.
@@ -38,7 +39,7 @@
 
 - name: Create backup destination directory if it does not exist
   ansible.builtin.file:
-    path: "{{ local_backup_destination }}"
+    path: "{{ mirror_backup_destination }}"
     state: directory
     owner: root
     group: root
@@ -62,36 +63,24 @@
 - name: Write .env file.
   ansible.builtin.blockinfile:
     path: "{{ tesseract_files_path }}/scripts/.env"
-    marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
+    marker: "# {mark} mirror_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
     group: root
     mode: '0644'
     block: |
-      LOCAL_BACKUP_DESTINATION="{{ local_backup_destination }}"
-      LOCAL_BACKUP_KEEP_DAILY="{{ local_backup_keep_daily }}"
-      LOCAL_BACKUP_KEEP_WEEKLY="{{ local_backup_keep_weekly }}"
-      LOCAL_BACKUP_KEEP_MONTHLY="{{ local_backup_keep_monthly }}"
+      MIRROR_BACKUP_DESTINATION="{{ mirror_backup_destination }}"
       LOG_FILE="{{ tesseract_log_file }}"
       EMAIL_USERNAME="{{ email_username }}"
 
-
-- name: Initialize an empty string for local backup paths.
-  ansible.builtin.set_fact:
-    backup_directories_string: ""
-  when: local_backup_paths | length > 0
-
-- name: Generate string of local backup paths.
-  ansible.builtin.set_fact:
-    backup_directories_string: "{{ backup_directories_string }} {{ item }}"
-  loop: "{{ local_backup_paths }}"
-  when: local_backup_paths | length > 0
-
-- name: Add cron job for local backup script.
+- name: Add cron job for mirror backup script.
   ansible.builtin.cron:
-    name: "Local backup."
-    minute: "{{ local_backup_minute }}"
-    hour: "{{ local_backup_hour }}"
-    day: "{{ local_backup_day }}"
-    job: "bash {{ tesseract_files_path }}/scripts/local_backup.sh {{ backup_directories_string }}"
-  when: local_backup_paths | length > 0
+    name: "Mirror backup for {{ item.path | basename }}."
+    minute: "{{ mirror_backup_minute }}"
+    hour: "{{ mirror_backup_hour }}"
+    day: "{{ mirror_backup_day }}"
+    job: >
+      bash {{ tesseract_files_path }}/scripts/mirror_backup.sh {{ item.path }}
+      {{ '-d' if not item.stop_docker | default(false) }}
+  when: mirror_backup_paths | length > 0
+  loop: "{{ mirror_backup_paths }}"

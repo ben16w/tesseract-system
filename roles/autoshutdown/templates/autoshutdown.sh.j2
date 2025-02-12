@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+####  CONFIGURATION  ####
+
+# Idle time in seconds before the server shuts down
+AUTOSHUTDOWN_IDLE_TIME="{{ autoshutdown_idle_time }}"
+# Maximum CPU usage percentage considered as idle
+AUTOSHUTDOWN_MAX_CPU="{{ autoshutdown_max_cpu }}"
+# Maximum network activity (in KB/s) considered as idle
+AUTOSHUTDOWN_MAX_NETWORK="{{ autoshutdown_max_network }}"
+# Log file path
+LOG_FILE="/var/log/tesseract.log"
+# Dry run flag to test the script without actual shutdown
+DRY_RUN="false"
+
+# Get the directory and filename of the current script
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+# Function to display usage information
+function usage()
+{
+  echo "Usage: $(basename "$0")"
+  echo
+  exit 0
+}
+
+# Function to exit the script with an error message
+function error_exit()
+{
+  echo "ERROR: ${1:-"Unknown Error"}"
+  log "ERROR: ${1:-"Unknown Error"}"
+  exit 1
+}
+
+# Function to print an informational message
+function info()
+{
+  echo "INFO: ${1}"
+  log "INFO: ${1}"
+}
+
+# Function to log messages to the log file
+function log()
+{
+  if [ "${LOG_FILE}" != "" ]; then
+    echo "$(date '+%F %T.%3N') ${1}" >> "$LOG_FILE"
+  fi
+}
+
+# Check if the script is running as root
+if [[ $EUID -ne 0 ]]; then
+  error_exit "Script $0 must be run as root."
+fi
+
+# Source environment variables from the .env file if it exists
+if [ -f "$SCRIPT_DIR"/.env ]; then
+  source "$SCRIPT_DIR"/.env || exit 1
+fi
+
+# Display usage information if -h or --help option is provided
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+fi
+
+####  MAIN CODE  ####
+
+# Check if -d or --dry option is provided to enable dry run
+if [ "$1" == "-d" ] || [ "$1" == "--dry" ]; then
+  DRY_RUN="true"
+  shift
+  info "Dry run enabled"
+fi
+
+# Check that ifstat is installed
+if ! command -v ifstat &> /dev/null; then
+  error_exit "ifstat command not found. Please install ifstat package."
+fi
+
+# Check that mpstat is installed
+if ! command -v mpstat &> /dev/null; then
+  error_exit "mpstat command not found. Please install sysstat package."
+fi
+
+# Check network activity
+NET_ACTIVITY=$(ifstat -T 1 1 | tail -n 1 | awk '{print $NF + $(NF-1)}' | awk '{printf("%d\n", $1)}')
+
+# Check CPU activity
+CPU_ACTIVITY=$(mpstat 1 1 | tail -n 1 | awk '{print 100 - $NF}' | awk '{printf("%d\n", $1)}')
+
+# Check if all activities are idle
+if [ "$NET_ACTIVITY" -lt "$AUTOSHUTDOWN_MAX_NETWORK" ] && [ "$CPU_ACTIVITY" -lt "$AUTOSHUTDOWN_MAX_CPU" ]; then
+  info "Server is idle."
+  if [ ! -f /tmp/autoshutdown ]; then
+    # Save the current time if idle time file does not exist
+    info "Saving the current time."
+    date +%s > /tmp/autoshutdown
+  else
+    # Calculate idle duration
+    LAST_IDLE=$(cat /tmp/autoshutdown)
+    CURRENT_TIME=$(date +%s)
+    IDLE_DURATION=$((CURRENT_TIME - LAST_IDLE))
+    if [ "$IDLE_DURATION" -ge "$AUTOSHUTDOWN_IDLE_TIME" ]; then
+      info "Server has been idle for $IDLE_DURATION seconds."
+      rm -f /tmp/autoshutdown
+{% for command in autoshutdown_pre_shutdown_commands %}
+      info "Running pre-shutdown command: {{ command }}"
+      {{ command }}
+{% endfor %}
+      if [ "$DRY_RUN" == "false" ]; then
+        # Shut down the server if not in dry run mode
+        info "Shutting down the server."
+        shutdown -h now
+      else
+        # Inform that the server would have been shut down in dry run mode
+        info "Server would have been shut down."
+      fi
+    fi
+  fi
+else
+  # Reset idle time if the server is not idle
+  info "Server is not idle, resetting idle time."
+  info "CPU: $CPU_ACTIVITY%, Network: $NET_ACTIVITY KB/s"
+  rm -f /tmp/autoshutdown
+fi

@@ -82,6 +82,7 @@
     block: |
       KOPIA_BACKUP_LOG_DIR="{{ kopia_backup_log_dir }}"
       KOPIA_BACKUP_LOG_LEVEL="{{ kopia_backup_log_level }}"
+      KOPIA_BACKUP_VERIFY_ENABLED="{{ kopia_backup_verify_enabled }}"
       KOPIA_BACKUP_VERIFY_PERCENT="{{ kopia_backup_verify_percent }}"
       KOPIA_BACKUP_PARALLELISM="{{ kopia_backup_parallelism }}"
       LOG_FILE="{{ tesseract_log_file }}"
@@ -119,7 +120,7 @@
       --keep-annual {{ item.keep_years | default("0", true) }}
       --keep-latest {{ item.keep_latest | default("8", true) }}
       {{ item.path }}
-  with_items: "{{ kopia_backup_paths }}"
+  loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
 
 - name: Set Kopia ignore policies for paths.
@@ -128,7 +129,7 @@
       kopia policy set
       {% for path in kopia_backup_ignored %} --add-ignore {{ path }}{% endfor %}
       {{ item.path }}
-  with_items: "{{ kopia_backup_paths }}"
+  loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_ignored | length > 0
 
 - name: Initialize an empty string for Kopia backup paths.
@@ -139,7 +140,7 @@
 - name: Generate string of Kopia backup paths.
   ansible.builtin.set_fact:
     kopia_backup_paths_string: "{{ kopia_backup_paths_string }} {{ item.path }}"
-  with_items: "{{ kopia_backup_paths }}"
+  loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
 
 - name: Add paths for backup to cron.

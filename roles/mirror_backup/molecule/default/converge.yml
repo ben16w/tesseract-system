@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    email_username: "email@email.com"
+    email_host: "email.com"
+    email_port: "465"
+    email_password: "password"
+    mirror_backup_paths:
+      - path: /tmp/data
+        stop_docker: false
+  roles:
+    - role: mirror_backup

@@ -26,6 +26,7 @@
 - name: Update and upgrade OS.
   ansible.builtin.apt:
     upgrade: full
+    autoremove: true
     update_cache: true
     cache_valid_time: 21600 # 6 Hours
 
@@ -43,6 +44,7 @@
       - zip
       - wakeonlan
       - openssh-server
+      - iputils-ping
 
 - name: Set nano as default editor for root.
   ansible.builtin.lineinfile:

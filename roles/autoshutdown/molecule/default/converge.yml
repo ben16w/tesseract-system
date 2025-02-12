@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    autoshutdown_idle_time: 1
+    autoshutdown_max_cpu: 100
+    autoshutdown_max_network: 1000000
+    autoshutdown_pre_shutdown_commands:
+      - "echo 'TEST SUCCESSFUL'"
+  roles:
+    - role: autoshutdown

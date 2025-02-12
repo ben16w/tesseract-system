@@ -45,7 +45,7 @@
 
 - name: Make sure share directories exist and are owned by tesseract.
   notify: restart samba
-  with_items: "{{ samaba_dirs.files }}"
+  loop: "{{ samaba_dirs.files }}"
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory

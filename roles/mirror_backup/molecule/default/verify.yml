@@ -1,15 +1,10 @@
 ---
+
 - name: Verify
   hosts: all
   vars_files:
     - ../../defaults/main.yml
   tasks:
-
-    - name: Install datefudge.
-      ansible.builtin.package:
-        name: datefudge
-        state: present
-        update_cache: true
 
     - name: Ensire directory /tmp/data exists.
       ansible.builtin.file:
@@ -24,19 +19,12 @@
         cmd: dd if=/dev/urandom of=/tmp/data/file{{ item }} bs=1M count=10
       with_sequence: start=1 end=10
 
-    - name: Set time to 2010-01-01 and take backup of /tmp/data.
+    - name: Take backup of /tmp/data.
       ansible.builtin.command:
-        cmd: datefudge "2010-01-01" bash {{ tesseract_files_path }}/scripts/local_backup.sh /tmp/data/
-
-    - name: Set time to 2020-01-01 and take backup of /tmp/data.
-      ansible.builtin.command:
-        cmd: datefudge "2020-01-01" bash {{ tesseract_files_path }}/scripts/local_backup.sh /tmp/data/
+        cmd: bash {{ tesseract_files_path }}/scripts/mirror_backup.sh /tmp/data/ -d
 
     - name: Verify that the backup directories exist.
       ansible.builtin.stat:
-        path: "{{ local_backup_destination }}/{{ item }}"
-      loop:
-        - data-backup-monthly-20100101.tar.gz
-        - data-backup-monthly-20200101.tar.gz
+        path: "{{ mirror_backup_destination }}/data-backup"
       register: backup_directories
       failed_when: backup_directories.stat.exists is false
