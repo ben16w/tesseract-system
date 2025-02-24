@@ -55,7 +55,7 @@
 
 - name: Mount mergerfs filesystems
   when: mergerfs_disks | length > 0
-  ansible.builtin.mount:
+  ansible.posix.mount:
     fstype: fuse.mergerfs
     src: "{{ ':'.join(mergerfs_disks) }}"
     path: "{{ mergerfs_path }}"

@@ -23,14 +23,17 @@
       ansible.builtin.command:
         cmd: dd if=/dev/urandom of=/tmp/data/file{{ item }} bs=1M count=10
       with_sequence: start=1 end=10
+      changed_when: true
 
     - name: Set time to 2010-01-01 and take backup of /tmp/data.
       ansible.builtin.command:
         cmd: datefudge "2010-01-01" bash {{ tesseract_files_path }}/scripts/local_backup.sh /tmp/data/
+      changed_when: true
 
     - name: Set time to 2020-01-01 and take backup of /tmp/data.
       ansible.builtin.command:
         cmd: datefudge "2020-01-01" bash {{ tesseract_files_path }}/scripts/local_backup.sh /tmp/data/
+      changed_when: true
 
     - name: Verify that the backup directories exist.
       ansible.builtin.stat:

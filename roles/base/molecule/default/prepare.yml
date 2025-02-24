@@ -3,7 +3,7 @@
   hosts: all
   tasks:
     - name: Umount /etc/hosts.
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: /etc/hosts
         state: unmounted
 

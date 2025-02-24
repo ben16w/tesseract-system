@@ -1,13 +1,49 @@
-# tesseract-system
+# roles-system
 
-This project is an ansible collection for tesseract.system.
+This project contains Ansible roles for managing system configurations and services for tesseract.
 
 ## Installation
 
-To install the collection, run the command below. This will install the collection from the git repository to the default collection location. Thich is `~/.ansible/collections` on Linux and macOS, or `C:\Users\%USERNAME%\.ansible\collections` on Windows.
+To install the collection, run the command below. This will install the collection from the git repository to the default collection location.
 
-    ansible-galaxy collection install git+https://github.com/ben16w/tesseract-system.git
+```sh
+ansible-galaxy collection install git+https://github.com/ben16w/tesseract-system.git
+```
+
+## Usage
+
+You can use these roles in your Ansible playbooks. For example:
+
+```yaml
+- hosts: all
+  roles:
+    - tesseract.system.mount
+```
+
+## Development
+
+Install the required system packages:
+
+```sh
+sudo apt install make python3 python3-pip python3-venv
+```
+
+Set up the virtual environment and install the required Python packages:
+
+```sh
+make install-venv
+```
+
+To run the tests, execute the following command:
+
+```sh
+make test
+```
 
 ## License
 
-This project is licensed under the Unlicense - see the LICENSE file for details
+This project is licensed under the Unlicense. See the [LICENSE](LICENSE) file for details.
+
+## Authors
+
+- Ben Wadsworth

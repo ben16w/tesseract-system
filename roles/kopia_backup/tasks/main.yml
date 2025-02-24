@@ -122,6 +122,7 @@
       {{ item.path }}
   loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
+  changed_when: true
 
 - name: Set Kopia ignore policies for paths.
   ansible.builtin.command:
@@ -131,6 +132,7 @@
       {{ item.path }}
   loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_ignored | length > 0
+  changed_when: true
 
 - name: Initialize an empty string for Kopia backup paths.
   ansible.builtin.set_fact:

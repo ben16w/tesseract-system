@@ -6,6 +6,8 @@
   tasks:
 
     - name: Run the snapraid status command and check output for errors.
-      command: snapraid status
+      ansible.builtin.command:
+        cmd: snapraid status
       register: snapraid_status
       failed_when: snapraid_status.rc != 0 and "WARNING!" not in snapraid_status.stderr
+      changed_when: true

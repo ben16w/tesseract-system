@@ -18,10 +18,12 @@
       ansible.builtin.command:
         cmd: dd if=/dev/urandom of=/tmp/data/file{{ item }} bs=1M count=10
       with_sequence: start=1 end=10
+      changed_when: true
 
     - name: Take backup of /tmp/data.
       ansible.builtin.command:
         cmd: bash {{ tesseract_files_path }}/scripts/mirror_backup.sh /tmp/data/ -d
+      changed_when: true
 
     - name: Verify that the backup directories exist.
       ansible.builtin.stat:
