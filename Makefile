@@ -62,6 +62,7 @@ help:
 
 # Define directive to activate the virtual environment.
 define activate-venv
+	set -e ;\
 	if [ -d .venv ]; then \
 		source .venv/bin/activate ;\
 	else \
@@ -72,11 +73,15 @@ endef
 
 # Define directive to run a molecule test for a role directory.
 define molecule-test
+	set -e ;\
 	if [ -f $${moleculedir}/default/molecule.yml ]; then \
 		pushd $$(dirname $${moleculedir}) > /dev/null ;\
 		if [ "$(CMD)" == "test" ]; then \
-			export INSTANCE_NAME=$$(echo "molecule-$$RANDOM") ;\
-			molecule test --scenario-name $(SCENARIO) --destroy $(DESTROY) ;\
+			if [ "$(DESTROY)" == "always" ]; then \
+				molecule test --scenario-name $(SCENARIO) --destroy always ;\
+			else \
+				molecule test --scenario-name $(SCENARIO) --destroy never ;\
+			fi ;\
 		elif [ "$(CMD)" == "login" ]; then \
 			if [ "$(HOST)" == "" ]; then \
 				molecule login --scenario-name $(SCENARIO) ;\
@@ -87,6 +92,19 @@ define molecule-test
 			molecule $(CMD) --scenario-name $(SCENARIO) ;\
 		fi ;\
 		popd > /dev/null ;\
+	else \
+		echo "No molecule.yml found for role: $${moleculedir}" ;\
+	fi
+endef
+
+# Define directive to run a molecule test for a role directory when multiple tests are required.
+define molecule-test-multi
+	set -e ;\
+	if [ -f $${moleculedir}/default/molecule.yml ]; then \
+		pushd $$(dirname $${moleculedir}) ;\
+		export INSTANCE_NAME=$$(echo "molecule-$$RANDOM") ;\
+		molecule test ;\
+		popd ;\
 	else \
 		echo "No molecule.yml found for role: $${moleculedir}" ;\
 	fi
@@ -248,7 +266,7 @@ test-changed:
 	for roledir in $${roles}; do \
 		moleculedir="$${roledir}/molecule" ;\
 		echo "Testing role: $${moleculedir}" ;\
-		$(molecule-test) ;\
+		$(molecule-test-multi) ;\
 	done ;\
 	echo "Success!"
 
@@ -258,7 +276,7 @@ test-all:
 	$(activate-venv) ;\
 	for moleculedir in roles/*/molecule; do \
 		echo "Testing role: $${moleculedir}" ;\
-		$(molecule-test) ;\
+		$(molecule-test-multi) ;\
 	done ;\
 	echo "Success!"
 
@@ -269,12 +287,12 @@ test-all-distros:
 	if [ -z "$$DISTRO_LIST" ]; then \
 		echo "ERROR: DISTRO_LIST environment variable is not defined." ;\
 		exit 1 ;\
-	fi
+	fi ;\
 	for moleculedir in roles/*/molecule; do \
 		for distro in $(shell echo $$DISTRO_LIST); do \
 			echo "Testing role: $${moleculedir} on $${distro}" ;\
 			export MOLECULE_DISTRO=$${distro} ;\
-			$(molecule-test) ;\
+			$(molecule-test-multi) ;\
 		done ;\
 	done ;\
 	echo "Success!"
