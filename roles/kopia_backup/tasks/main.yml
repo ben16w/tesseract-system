@@ -70,6 +70,10 @@
     dest: "{{ tesseract_files_path }}/scripts"
     version: main
     force: true
+  register: download_scripts
+  retries: 5
+  delay: 10
+  until: download_scripts is succeeded
 
 - name: Write .env file.
   ansible.builtin.blockinfile:

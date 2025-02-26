@@ -35,6 +35,10 @@
       {{ ansible_distribution_release }}_{{ download_arch }}.deb"
     dest: /tmp/mergerfs.deb
     mode: '0644'
+  register: download_mergerfs
+  retries: 5
+  delay: 10
+  until: download_mergerfs is succeeded
 
 - name: Install mergerfs from download .deb package.
   ansible.builtin.apt:

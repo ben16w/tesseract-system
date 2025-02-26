@@ -44,6 +44,10 @@
         dest: /tmp
         remote_src: true
         creates: /tmp/snapraid-{{ snapraid_version }}
+      register: download_snapraid
+      retries: 5
+      delay: 10
+      until: download_snapraid is succeeded
 
     - name: Configure Snapraid install.
       ansible.builtin.command:
@@ -82,6 +86,10 @@
     repo: https://github.com/Chronial/snapraid-runner.git
     dest: /opt/snapraid-runner
     version: master
+  register: download_snapraid_runner
+  retries: 5
+  delay: 10
+  until: download_snapraid_runner is succeeded
 
 - name: When data disks and parity disks are not empty.
   when: snapraid_data_disks | length > 0 and snapraid_parity_disks | length > 0
