@@ -3,7 +3,6 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - mergerfs_path is not none
       - mergerfs_version is not none
 
 - name: Install fuse.
@@ -44,32 +43,36 @@
   ansible.builtin.apt:
     deb: /tmp/mergerfs.deb
 
-- name: Make sure mountpoint exists.
-  ansible.builtin.file:
-    path: "{{ mergerfs_path }}"
-    state: directory
-    mode: '0755'
+- name: When mergerfs is configured.
+  when: mergerfs_path is not none and mergerfs_disks | length > 0
+  block:
 
-- name: Make sure disk paths exist.
-  loop: "{{ mergerfs_disks }}"
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: '0755'
+    - name: Make sure mountpoint exists.
+      ansible.builtin.file:
+        path: "{{ mergerfs_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Mount mergerfs filesystems
-  when: mergerfs_disks | length > 0
-  ansible.posix.mount:
-    fstype: fuse.mergerfs
-    src: "{{ ':'.join(mergerfs_disks) }}"
-    path: "{{ mergerfs_path }}"
-    opts: "minfreespace={{ mergerfs_min_free_space }},\
-      fsname={{ mergerfs_path | basename }},\
-      allow_other,\
-      use_ino,\
-      cache.files=partial,\
-      dropcacheonclose=true,\
-      category.create=mfs,\
-      moveonenospc=true,\
-      noauto"
-    state: mounted
+    - name: Make sure disk paths exist.
+      loop: "{{ mergerfs_disks }}"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+
+    - name: Mount mergerfs filesystems.
+      when: mergerfs_disks | length > 0
+      ansible.posix.mount:
+        fstype: fuse.mergerfs
+        src: "{{ ':'.join(mergerfs_disks) }}"
+        path: "{{ mergerfs_path }}"
+        opts: "minfreespace={{ mergerfs_min_free_space }},\
+          fsname={{ mergerfs_path | basename }},\
+          allow_other,\
+          use_ino,\
+          cache.files=partial,\
+          dropcacheonclose=true,\
+          category.create=mfs,\
+          moveonenospc=true,\
+          noauto"
+        state: mounted

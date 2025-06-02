@@ -4,5 +4,8 @@
   vars:
     mergerfs_path: "/media/storage"
     mergerfs_version: "2.37.1"
+    mergerfs_disks:
+      - /media/disk1
+      - /media/disk2
   roles:
     - role: mergerfs
