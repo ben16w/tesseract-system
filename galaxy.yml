@@ -13,6 +13,9 @@ license_file: 'LICENSE'
 repository: https://github.com/ben16w/tesseract-system
 dependencies:
   "ansible.posix": "*"
+tags:
+  - linux
+  - infrastructure
 build_ignore:
   - .ansible
   - .venv
