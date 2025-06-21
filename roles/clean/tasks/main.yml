@@ -11,10 +11,17 @@
     autoremove: true
     purge: true
 
+- name: Check if 'pip cache' command exists
+  ansible.builtin.shell: pip help | grep -q "cache"
+  register: pip_cache_supported
+  ignore_errors: true
+  changed_when: false
+
 - name: Clean pip cache.
   ansible.builtin.command:
     cmd: pip cache purge
   changed_when: false
+  when: pip_cache_supported.rc == 0
 
 - name: Clean journal logs.
   ansible.builtin.command:
