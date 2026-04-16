@@ -6,8 +6,8 @@
 
 - name: Install AMD ROCm support.
   ansible.builtin.include_tasks:
-    file: install_rocm.yml
-  when: gpu_install_rocm is true
+    file: install_amd.yml
+  when: gpu_install_amd is true
 
 - name: Install Vulkan support.
   ansible.builtin.include_tasks:

@@ -2,14 +2,10 @@
 
 tesseract_username: "tesseract"
 
-gpu_install_rocm: false
-gpu_rocm_version_short: ~
-# Example: gpu_rocm_version_short: "6.1.3"
-gpu_rocm_version_long: ~
-# Example: gpu_rocm_version_long: "6.1.60103-1"
-gpu_rocm_gfx_version: ~
-# Example: gpu_rocm_gfx_version: 10.3.0
+gpu_install_amd: false
+gpu_amd_version_short: ~
+# Example: gpu_amd_version_short: "6.1.3"
+gpu_amd_version_long: ~
+# Example: gpu_amd_version_long: "6.1.60103-1"
 
 gpu_install_vulkan: false
-gpu_vulkan_visible_devices: ~
-# Example: gpu_vulkan_visible_devices: "2"

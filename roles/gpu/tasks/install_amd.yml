@@ -3,8 +3,8 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - gpu_rocm_version_short is not none
-      - gpu_rocm_version_long is not none
+      - gpu_amd_version_short is not none
+      - gpu_amd_version_long is not none
 
 - name: Check if the distribution is Ubuntu.
   ansible.builtin.assert:
@@ -39,21 +39,21 @@
 - name: Check if ROCm is already installed at the target version.
   ansible.builtin.command:
     cmd: "dpkg-query -W -f='${Version}' rocm"
-  register: rocm_installed_version
+  register: amd_installed_version
   failed_when: false
   changed_when: false
 
 - name: Download and install ROCm if required.
   when: >
-    rocm_installed_version.rc != 0 or
-    gpu_rocm_version_short not in rocm_installed_version.stdout
+    amd_installed_version.rc != 0 or
+    gpu_amd_version_short not in amd_installed_version.stdout
   block:
     - name: Download the AMDGPU driver package.
       ansible.builtin.get_url:
         url: "https://repo.radeon.com/amdgpu-install/\
-          {{ gpu_rocm_version_short }}/ubuntu/\
+          {{ gpu_amd_version_short }}/ubuntu/\
           {{ ansible_distribution_release }}/amdgpu-install_\
-          {{ gpu_rocm_version_long }}_all.deb"
+          {{ gpu_amd_version_long }}_all.deb"
         dest: /tmp/amdgpu-install.deb
         owner: root
         group: root
