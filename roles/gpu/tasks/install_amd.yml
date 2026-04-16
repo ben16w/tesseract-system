@@ -12,7 +12,6 @@
       - "linux-headers-{{ ansible_kernel }}"
       - "linux-modules-extra-{{ ansible_kernel }}"
     state: present
-    update_cache: true
 
 - name: Check if ROCm is already installed at the target version.
   ansible.builtin.command:
@@ -54,3 +53,10 @@
       failed_when: >
         amdgpu_install_result.rc != 0 and
         'amdgpu-proprietary.list: No such file or directory' not in amdgpu_install_result.stderr
+
+- name: Install VA-API drivers for AMD.
+  ansible.builtin.apt:
+    name:
+      - mesa-va-drivers
+      - libva-utils
+    state: present

@@ -4,7 +4,6 @@
   ansible.builtin.apt:
     name: dirmngr
     state: present
-    update_cache: true
 
 - name: Add the kisak-mesa PPA repository.
   ansible.builtin.apt_repository:
@@ -19,4 +18,10 @@
       - vulkan-tools
       - mesa-utils
     state: present
-    update_cache: true
+
+- name: Install VA-API drivers for Intel.
+  ansible.builtin.apt:
+    name:
+      - intel-media-va-driver
+      - libva-utils
+    state: present

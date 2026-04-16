@@ -22,12 +22,16 @@
       - video
     append: true
 
-- name: Install AMD ROCm support.
+- name: Update apt cache.
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install Intel GPU support.
+  ansible.builtin.include_tasks:
+    file: install_intel.yml
+  when: gpu_install_intel is true
+
+- name: Install AMD GPU support.
   ansible.builtin.include_tasks:
     file: install_amd.yml
   when: gpu_install_amd is true
-
-- name: Install Vulkan support.
-  ansible.builtin.include_tasks:
-    file: install_vulkan.yml
-  when: gpu_install_vulkan is true
