@@ -47,7 +47,7 @@
 
     - name: Run amdgpu-install script to finalize installation.
       ansible.builtin.command:
-        cmd: "amdgpu-install --usecase=rocm --accept-eula -y"
+        cmd: "amdgpu-install --usecase=graphics,rocm --accept-eula -y"
       register: amdgpu_install_result
       changed_when: true
       failed_when: >
