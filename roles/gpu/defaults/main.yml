@@ -9,8 +9,6 @@ gpu_rocm_version_long: ~
 # Example: gpu_rocm_version_long: "6.1.60103-1"
 gpu_rocm_gfx_version: ~
 # Example: gpu_rocm_gfx_version: 10.3.0
-gpu_ollama_version: ~
-# Example: gpu_ollama_version: "0.12.11"
 
 gpu_install_vulkan: false
 gpu_vulkan_visible_devices: ~
