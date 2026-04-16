@@ -58,6 +58,7 @@
         owner: root
         group: root
         mode: '0644'
+        force: true
       register: download_driver
       retries: 5
       delay: 10
