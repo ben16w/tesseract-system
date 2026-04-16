@@ -1,0 +1,15 @@
+---
+
+- name: Set architecture variable.
+  ansible.builtin.set_fact:
+    arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+- name: Install AMD ROCm support.
+  ansible.builtin.include_tasks:
+    file: install_rocm.yml
+  when: gpu_install_rocm is true
+
+- name: Install Vulkan support.
+  ansible.builtin.include_tasks:
+    file: install_vulkan.yml
+  when: gpu_install_vulkan is true
