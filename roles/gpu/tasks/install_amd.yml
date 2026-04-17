@@ -46,11 +46,7 @@
     - name: Run amdgpu-install script to finalize installation.
       ansible.builtin.command:
         cmd: "amdgpu-install --usecase=graphics,rocm --accept-eula -y"
-      register: amdgpu_install_result
       changed_when: true
-      failed_when: >
-        amdgpu_install_result.rc != 0 and
-        'amdgpu-proprietary.list: No such file or directory' not in amdgpu_install_result.stderr
 
 - name: Install VA-API drivers for AMD.
   ansible.builtin.apt:
