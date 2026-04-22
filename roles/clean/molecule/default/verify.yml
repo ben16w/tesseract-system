@@ -1,6 +1,18 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
   tasks:
+
+    - name: Check that apt-get check reports no broken dependencies.
+      ansible.builtin.command:
+        cmd: apt-get check
+      changed_when: false
+      register: apt_check
+      failed_when: apt_check.rc != 0
+
+    - name: Check that journalctl is accessible.
+      ansible.builtin.command:
+        cmd: journalctl --no-pager -n 1
+      changed_when: false
+      register: journal_check
+      failed_when: journal_check.rc != 0

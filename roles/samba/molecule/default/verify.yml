@@ -1,6 +1,40 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    tesseract_username: tesseract
+    samba_path: /media/storage
   tasks:
+
+    - name: Check that the smbd service is running.
+      ansible.builtin.service:
+        name: smbd
+        state: started
+      register: smbd_service
+      failed_when: smbd_service.failed
+
+    - name: Check that the samba config file exists.
+      ansible.builtin.stat:
+        path: /etc/samba/smb.conf
+      register: smb_conf
+      failed_when: not smb_conf.stat.exists
+
+    - name: Check that the samba path directory exists.
+      ansible.builtin.stat:
+        path: "{{ samba_path }}"
+      register: samba_path_stat
+      failed_when: not samba_path_stat.stat.isdir
+
+    - name: Validate samba configuration with testparm.
+      ansible.builtin.command:
+        cmd: testparm -s
+      changed_when: false
+      register: testparm_output
+      failed_when: testparm_output.rc != 0
+
+    - name: Check that the samba user exists.
+      ansible.builtin.command:
+        cmd: "pdbedit --user={{ tesseract_username }}"
+      changed_when: false
+      register: samba_user
+      failed_when: samba_user.rc != 0

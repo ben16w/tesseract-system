@@ -1,6 +1,45 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    tesseract_files_path: /root
+    kopia_backup_log_dir: /var/log/kopia/
   tasks:
+
+    - name: Check that kopia is installed.
+      ansible.builtin.command:
+        cmd: kopia --version
+      changed_when: false
+      register: kopia_version
+      failed_when: kopia_version.rc != 0
+
+    - name: Check that msmtp is installed.
+      ansible.builtin.command:
+        cmd: msmtp --version
+      changed_when: false
+      register: msmtp_version
+      failed_when: msmtp_version.rc != 0
+
+    - name: Check that the scripts directory exists.
+      ansible.builtin.stat:
+        path: "{{ tesseract_files_path }}/scripts"
+      register: scripts_dir
+      failed_when: not scripts_dir.stat.isdir
+
+    - name: Check that the kopia_backup script exists.
+      ansible.builtin.stat:
+        path: "{{ tesseract_files_path }}/scripts/kopia_backup.sh"
+      register: kopia_script
+      failed_when: not kopia_script.stat.exists
+
+    - name: Check that the .env file exists.
+      ansible.builtin.stat:
+        path: "{{ tesseract_files_path }}/scripts/.env"
+      register: env_file
+      failed_when: not env_file.stat.exists
+
+    - name: Check that the kopia log directory exists.
+      ansible.builtin.stat:
+        path: "{{ kopia_backup_log_dir }}"
+      register: kopia_log_dir
+      failed_when: not kopia_log_dir.stat.isdir

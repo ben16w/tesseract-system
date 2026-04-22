@@ -1,6 +1,11 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
   tasks:
+
+    - name: Check that cryptsetup is installed.
+      ansible.builtin.command:
+        cmd: cryptsetup --version
+      changed_when: false
+      register: cryptsetup_version
+      failed_when: cryptsetup_version.rc != 0

@@ -1,6 +1,54 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    admin_username: admin
+    tesseract_username: tesseract
   tasks:
+
+    - name: Check that the admin user exists.
+      ansible.builtin.command:
+        cmd: "id {{ admin_username }}"
+      changed_when: false
+      register: admin_user_check
+      failed_when: admin_user_check.rc != 0
+
+    - name: Check that the tesseract user exists.
+      ansible.builtin.command:
+        cmd: "id {{ tesseract_username }}"
+      changed_when: false
+      register: tesseract_user_check
+      failed_when: tesseract_user_check.rc != 0
+
+    - name: Check that tesseract is not in the sudo group.
+      ansible.builtin.command:
+        cmd: "groups {{ tesseract_username }}"
+      changed_when: false
+      register: tesseract_groups
+
+    - name: Assert tesseract is not in sudo group.
+      ansible.builtin.assert:
+        that:
+          - "'sudo' not in tesseract_groups.stdout"
+        fail_msg: "tesseract user should not be in the sudo group."
+
+    - name: Check that openssh-server is installed.
+      ansible.builtin.command:
+        cmd: dpkg -l openssh-server
+      changed_when: false
+      register: ssh_installed
+      failed_when: ssh_installed.rc != 0
+
+    - name: Check that PermitRootLogin is disabled in sshd_config.
+      ansible.builtin.command:
+        cmd: "grep -i '^PermitRootLogin No' /etc/ssh/sshd_config"
+      changed_when: false
+      register: root_login_check
+      failed_when: root_login_check.rc != 0
+
+    - name: Check that SFTP chroot block exists in sshd_config.
+      ansible.builtin.command:
+        cmd: "grep -i 'ForceCommand internal-sftp' /etc/ssh/sshd_config"
+      changed_when: false
+      register: sftp_check
+      failed_when: sftp_check.rc != 0

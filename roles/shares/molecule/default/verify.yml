@@ -1,6 +1,39 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    shares_path: /media/shares
+    tesseract_username: tesseract
   tasks:
+
+    - name: Check that cifs-utils is installed.
+      ansible.builtin.command:
+        cmd: dpkg -l cifs-utils
+      changed_when: false
+      register: cifs_installed
+      failed_when: cifs_installed.rc != 0
+
+    - name: Check that autofs is installed.
+      ansible.builtin.command:
+        cmd: dpkg -l autofs
+      changed_when: false
+      register: autofs_installed
+      failed_when: autofs_installed.rc != 0
+
+    - name: Check that the shares path directory exists.
+      ansible.builtin.stat:
+        path: "{{ shares_path }}"
+      register: shares_path_stat
+      failed_when: not shares_path_stat.stat.isdir
+
+    - name: Check that the smbcredentials file exists.
+      ansible.builtin.stat:
+        path: /root/.smbcredentials
+      register: smbcred_stat
+      failed_when: not smbcred_stat.stat.exists
+
+    - name: Assert that the smbcredentials file has secure permissions.
+      ansible.builtin.assert:
+        that:
+          - smbcred_stat.stat.mode == '0600'
+        fail_msg: "smbcredentials file should have mode 0600, got {{ smbcred_stat.stat.mode }}"

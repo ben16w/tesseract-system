@@ -1,6 +1,37 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    mergerfs_path: /media/storage
+    mergerfs_disks:
+      - /media/disk1
+      - /media/disk2
   tasks:
+
+    - name: Check that mergerfs is installed.
+      ansible.builtin.command:
+        cmd: mergerfs --version
+      changed_when: false
+      register: mergerfs_version
+      failed_when: mergerfs_version.rc != 0
+
+    - name: Check that the mergerfs mount path exists.
+      ansible.builtin.stat:
+        path: "{{ mergerfs_path }}"
+      register: mergerfs_mount_path
+      failed_when: not mergerfs_mount_path.stat.isdir
+
+    - name: Check that the disk source paths exist.
+      loop: "{{ mergerfs_disks }}"
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: disk_paths
+      failed_when: not disk_paths.stat.isdir
+
+    - name: Check that mergerfs filesystem is mounted.
+      ansible.builtin.shell:
+        cmd: "set -o pipefail && mount | grep 'fuse.mergerfs'"
+        executable: /bin/bash
+      changed_when: false
+      register: mergerfs_mount
+      failed_when: mergerfs_mount.rc != 0
