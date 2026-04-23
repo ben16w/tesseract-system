@@ -17,13 +17,23 @@
     state: present
     update_cache: true
 
-- name: Add an Apt signing key for Kopia.
-  ansible.builtin.apt_key:
+- name: Ensure /etc/apt/keyrings directory exists.
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Kopia signing key.
+  ansible.builtin.get_url:
     url: https://kopia.io/signing-key
+    dest: /etc/apt/keyrings/kopia.asc
+    mode: '0644'
 
 - name: Add Kopia repository into sources list.
   ansible.builtin.apt_repository:
-    repo: deb http://packages.kopia.io/apt/ stable main
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/kopia.asc]
+      http://packages.kopia.io/apt/ stable main
     state: present
     update_cache: true
 
