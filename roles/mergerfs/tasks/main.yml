@@ -14,24 +14,24 @@
 - name: Setting architecture to amd64.
   ansible.builtin.set_fact:
     download_arch: "amd64"
-  when: '"x86_64" in ansible_architecture'
+  when: '"x86_64" in ansible_facts["architecture"]'
 
 - name: Setting architecture to arm64.
   ansible.builtin.set_fact:
     download_arch: "arm64"
-  when: '"armv" in ansible_architecture or "aarch" in ansible_architecture'
+  when: '"armv" in ansible_facts["architecture"] or "aarch" in ansible_facts["architecture"]'
 
 - name: Setting architecture to armhf.
   ansible.builtin.set_fact:
     download_arch: "armhf"
-  when: '"armv7l" in ansible_architecture'
+  when: '"armv7l" in ansible_facts["architecture"]'
 
 - name: Downloading mergerfs .deb package.
   ansible.builtin.get_url:
     url: "https://github.com/trapexit/mergerfs/releases/download/\
       {{ mergerfs_version }}/\
-      mergerfs_{{ mergerfs_version }}.{{ ansible_distribution }}-\
-      {{ ansible_distribution_release }}_{{ download_arch }}.deb"
+      mergerfs_{{ mergerfs_version }}.{{ ansible_facts['distribution'] }}-\
+      {{ ansible_facts['distribution_release'] }}_{{ download_arch }}.deb"
     dest: /tmp/mergerfs.deb
     mode: '0644'
   register: download_mergerfs
