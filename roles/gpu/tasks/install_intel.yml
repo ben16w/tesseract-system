@@ -1,0 +1,27 @@
+---
+
+- name: Install dirmngr for GPG key management.
+  ansible.builtin.apt:
+    name: dirmngr
+    state: present
+
+- name: Add the kisak-mesa PPA repository.
+  ansible.builtin.apt_repository:
+    repo: ppa:kisak/kisak-mesa
+    state: present
+    update_cache: true
+
+- name: Install Mesa Vulkan drivers and related packages.
+  ansible.builtin.apt:
+    name:
+      - mesa-vulkan-drivers
+      - vulkan-tools
+      - mesa-utils
+    state: present
+
+- name: Install VA-API drivers for Intel.
+  ansible.builtin.apt:
+    name:
+      - intel-media-va-driver
+      - vainfo
+    state: present

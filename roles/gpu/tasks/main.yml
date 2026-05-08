@@ -1,0 +1,38 @@
+---
+
+- name: Check if the distribution is Ubuntu.
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Ensure render and video groups exist.
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+    system: true
+  loop:
+    - render
+    - video
+
+- name: Add the tesseract user to the render and video groups.
+  ansible.builtin.user:
+    name: "{{ tesseract_username }}"
+    groups:
+      - render
+      - video
+    append: true
+
+- name: Update apt cache.
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install Intel GPU support.
+  ansible.builtin.include_tasks:
+    file: install_intel.yml
+  when: gpu_install_intel is true
+
+- name: Install AMD GPU support.
+  ansible.builtin.include_tasks:
+    file: install_amd.yml
+  when: gpu_install_amd is true

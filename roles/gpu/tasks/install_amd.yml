@@ -1,0 +1,57 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - gpu_amd_version_short is not none
+      - gpu_amd_version_long is not none
+
+- name: Install necessary Linux headers and modules.
+  ansible.builtin.apt:
+    name:
+      - "linux-headers-{{ ansible_facts['kernel'] }}"
+      - "linux-modules-extra-{{ ansible_facts['kernel'] }}"
+    state: present
+
+- name: Check if ROCm sources are already configured at the target version.
+  ansible.builtin.command:
+    cmd: "grep -q '{{ gpu_amd_version_short }}' /etc/apt/sources.list.d/rocm.list"
+  register: amd_sources_version
+  failed_when: false
+  changed_when: false
+
+- name: Download and install ROCm if required.
+  when: amd_sources_version.rc != 0
+  block:
+    - name: Download the AMDGPU driver package.
+      ansible.builtin.get_url:
+        url: "https://repo.radeon.com/amdgpu-install/\
+          {{ gpu_amd_version_short }}/ubuntu/\
+          {{ ansible_facts['distribution_release'] }}/amdgpu-install_\
+          {{ gpu_amd_version_long }}_all.deb"
+        dest: /tmp/amdgpu-install.deb
+        owner: root
+        group: root
+        mode: '0644'
+        force: true
+      register: download_driver
+      retries: 5
+      delay: 10
+      until: download_driver is succeeded
+
+    - name: Install the AMDGPU driver package.
+      ansible.builtin.apt:
+        deb: /tmp/amdgpu-install.deb
+
+    - name: Run amdgpu-install script to finalize installation.
+      ansible.builtin.command:
+        cmd: "amdgpu-install --usecase=graphics,rocm -y"
+      changed_when: true
+      tags: notest
+
+- name: Install VA-API drivers for AMD.
+  ansible.builtin.apt:
+    name:
+      - mesa-va-drivers
+      - vainfo
+    state: present

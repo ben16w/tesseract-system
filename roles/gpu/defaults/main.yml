@@ -1,0 +1,11 @@
+---
+
+tesseract_username: "tesseract"
+
+gpu_install_intel: false
+
+gpu_install_amd: false
+gpu_amd_version_short: ~
+# Example: gpu_amd_version_short: "6.1.3"
+gpu_amd_version_long: ~
+# Example: gpu_amd_version_long: "6.1.60103-1"
