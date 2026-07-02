@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+####  CONFIGURATION  ####
+
+# Poll interval in minutes - how far back to check journal
+LOG_MONITOR_POLL_INTERVAL="{{ log_monitor_poll_interval }}"
+# Email recipient address
+LOG_MONITOR_EMAIL_TO="{{ log_monitor_email_to }}"
+# Email from address
+LOG_MONITOR_EMAIL_FROM="{{ email_username }}"
+# Hostname for email subject
+LOG_MONITOR_HOSTNAME="{{ ansible_hostname }}"
+# Log file path
+LOG_FILE="{{ tesseract_log_file }}"
+
+# Function to log messages to the log file
+function log()
+{
+  if [ "${LOG_FILE}" != "" ]; then
+    echo "$(date '+%F %T.%3N') ${1}" >> "$LOG_FILE"
+  fi
+}
+
+# Function to exit the script with an error message
+function error_exit()
+{
+  echo "ERROR: ${1:-"Unknown Error"}"
+  log "ERROR: ${1:-"Unknown Error"}"
+  exit 1
+}
+
+# Check if the script is running as root
+if [[ $EUID -ne 0 ]]; then
+  error_exit "Script $0 must be run as root."
+fi
+
+####  MAIN CODE  ####
+
+log "INFO: Checking journal for errors in the last ${LOG_MONITOR_POLL_INTERVAL} minutes."
+
+ERRORS=$(journalctl -p err --since "${LOG_MONITOR_POLL_INTERVAL} minutes ago" --no-pager 2>/dev/null)
+
+if [ -n "$ERRORS" ]; then
+  log "INFO: Errors found. Sending email to ${LOG_MONITOR_EMAIL_TO}."
+  {
+    echo "To: ${LOG_MONITOR_EMAIL_TO}"
+    echo "From: ${LOG_MONITOR_EMAIL_FROM}"
+    echo "Subject: [${LOG_MONITOR_HOSTNAME}] System errors detected"
+    echo ""
+    echo "The following errors were detected on ${LOG_MONITOR_HOSTNAME} in the last ${LOG_MONITOR_POLL_INTERVAL} minutes:"
+    echo ""
+    echo "${ERRORS}"
+  } | msmtp "${LOG_MONITOR_EMAIL_TO}"
+  log "INFO: Email sent."
+else
+  log "INFO: No errors found."
+fi

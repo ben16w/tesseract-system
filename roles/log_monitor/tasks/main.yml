@@ -1,0 +1,59 @@
+---
+
+- name: Assert that all required inputs have been provided.
+  ansible.builtin.assert:
+    that:
+      - email_host is not none
+      - email_port is not none
+      - email_username is not none
+      - email_password is not none
+      - log_monitor_email_to is not none
+
+- name: Install msmtp and cron.
+  ansible.builtin.package:
+    name:
+      - msmtp
+      - cron
+    update_cache: true
+
+- name: Add msmtp email global config.
+  no_log: true
+  ansible.builtin.blockinfile:
+    path: /etc/msmtprc
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    block: |
+      account default
+      tls on
+      tls_starttls off
+      tls_certcheck off
+      auth login
+      host "{{ email_host }}"
+      port "{{ email_port }}"
+      user "{{ email_username }}"
+      from "{{ email_username }}"
+      password "{{ email_password }}"
+
+- name: Create scripts directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ tesseract_files_path }}/scripts"
+    state: directory
+    owner: root
+    group: root
+    mode: '0775'
+
+- name: Template log monitor script to scripts directory.
+  ansible.builtin.template:
+    src: templates/log_monitor.sh.j2
+    dest: "{{ tesseract_files_path }}/scripts/log_monitor.sh"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create cron job to monitor logs for errors.
+  ansible.builtin.cron:
+    name: "Monitor system logs for errors."
+    minute: "*/{{ log_monitor_poll_interval }}"
+    job: "flock -n /tmp/log_monitor.lockfile {{ tesseract_files_path }}/scripts/log_monitor.sh"

@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    email_username: "email@email.com"
+    email_host: "email.com"
+    email_port: "465"
+    email_password: "password"
+    log_monitor_email_to: "admin@email.com"
+  roles:
+    - role: log_monitor

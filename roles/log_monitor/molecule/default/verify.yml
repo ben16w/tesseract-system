@@ -1,0 +1,33 @@
+---
+- name: Verify
+  hosts: all
+  vars_files:
+    - ../../defaults/main.yml
+  tasks:
+
+    - name: Gather package facts.
+      ansible.builtin.package_facts:
+
+    - name: Assert msmtp is installed.
+      ansible.builtin.assert:
+        that: "'msmtp' in ansible_facts.packages"
+
+    - name: Check that msmtprc config file exists.
+      ansible.builtin.stat:
+        path: /etc/msmtprc
+      register: msmtprc
+
+    - name: Assert msmtprc config file exists.
+      ansible.builtin.assert:
+        that: msmtprc.stat.exists
+
+    - name: Check that log monitor script exists.
+      ansible.builtin.stat:
+        path: "{{ tesseract_files_path }}/scripts/log_monitor.sh"
+      register: script
+
+    - name: Assert log monitor script exists and is executable.
+      ansible.builtin.assert:
+        that:
+          - script.stat.exists
+          - script.stat.executable
