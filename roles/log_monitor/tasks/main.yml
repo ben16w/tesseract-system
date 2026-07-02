@@ -52,8 +52,15 @@
     group: root
     mode: '0755'
 
-- name: Create cron job to monitor logs for errors.
+- name: Ensure cron job to monitor logs for errors is present.
+  when: log_monitor_enabled | bool
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     minute: "*/{{ log_monitor_poll_interval }}"
     job: "flock -n /tmp/log_monitor.lockfile {{ tesseract_files_path }}/scripts/log_monitor.sh"
+
+- name: Ensure cron job to monitor logs for errors is absent.
+  when: not (log_monitor_enabled | bool)
+  ansible.builtin.cron:
+    name: "Monitor system logs for errors."
+    state: absent
