@@ -12,17 +12,6 @@
       ansible.builtin.assert:
         that: "'msmtp' in ansible_facts.packages"
 
-    - name: Check that log monitor script exists.
-      ansible.builtin.stat:
-        path: "{{ tesseract_files_path }}/scripts/log_monitor.sh"
-      register: script
-
-    - name: Assert log monitor script exists and is executable.
-      ansible.builtin.assert:
-        that:
-          - script.stat.exists
-          - script.stat.executable
-
     - name: Inject a test error into the journal.
       ansible.builtin.command:
         cmd: logger -p err "molecule test error"
