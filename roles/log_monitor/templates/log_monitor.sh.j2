@@ -69,6 +69,11 @@ fi
 
 # Strip the cursor line to get only error log entries
 ERRORS=$(echo "$OUTPUT" | grep -v "^-- cursor:")
+{% if log_monitor_exclude_patterns | length > 0 %}
+
+# Filter out known noise using configured exclusion patterns
+ERRORS=$(echo "$ERRORS" | grep -vE "{{ log_monitor_exclude_patterns | join('|') }}")
+{% endif %}
 
 if [ -n "$ERRORS" ]; then
   log "INFO: Errors found. Sending email to ${LOG_MONITOR_EMAIL_TO}."
