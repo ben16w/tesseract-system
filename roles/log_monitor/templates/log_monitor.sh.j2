@@ -9,9 +9,11 @@ LOG_MONITOR_EMAIL_TO="{{ log_monitor_email_to }}"
 # Email from address
 LOG_MONITOR_EMAIL_FROM="{{ email_username }}"
 # Hostname for email subject
-LOG_MONITOR_HOSTNAME="{{ ansible_hostname }}"
+LOG_MONITOR_HOSTNAME="{{ ansible_facts['hostname'] }}"
 # Log file path
 LOG_FILE="{{ tesseract_log_file }}"
+# Dry run flag to test the script without sending emails
+DRY_RUN="false"
 
 # Function to log messages to the log file
 function log()
@@ -34,7 +36,20 @@ if [[ $EUID -ne 0 ]]; then
   error_exit "Script $0 must be run as root."
 fi
 
+# Display usage information if -h or --help option is provided
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  echo "Usage: $(basename "$0") [-d|--dry]"
+  exit 0
+fi
+
 ####  MAIN CODE  ####
+
+# Check if -d or --dry option is provided to enable dry run
+if [ "$1" == "-d" ] || [ "$1" == "--dry" ]; then
+  DRY_RUN="true"
+  shift
+  log "INFO: Dry run enabled."
+fi
 
 log "INFO: Checking journal for errors in the last ${LOG_MONITOR_POLL_INTERVAL} minutes."
 
@@ -42,16 +57,20 @@ ERRORS=$(journalctl -p err --since "${LOG_MONITOR_POLL_INTERVAL} minutes ago" --
 
 if [ -n "$ERRORS" ]; then
   log "INFO: Errors found. Sending email to ${LOG_MONITOR_EMAIL_TO}."
-  {
-    echo "To: ${LOG_MONITOR_EMAIL_TO}"
-    echo "From: ${LOG_MONITOR_EMAIL_FROM}"
-    echo "Subject: [${LOG_MONITOR_HOSTNAME}] System errors detected"
-    echo ""
-    echo "The following errors were detected on ${LOG_MONITOR_HOSTNAME} in the last ${LOG_MONITOR_POLL_INTERVAL} minutes:"
-    echo ""
-    echo "${ERRORS}"
-  } | msmtp "${LOG_MONITOR_EMAIL_TO}"
-  log "INFO: Email sent."
+  if [ "${DRY_RUN}" == "true" ]; then
+    log "INFO: Dry run enabled. Skipping email."
+  else
+    {
+      echo "To: ${LOG_MONITOR_EMAIL_TO}"
+      echo "From: ${LOG_MONITOR_EMAIL_FROM}"
+      echo "Subject: [${LOG_MONITOR_HOSTNAME}] System errors detected"
+      echo ""
+      echo "The following errors were detected on ${LOG_MONITOR_HOSTNAME} in the last ${LOG_MONITOR_POLL_INTERVAL} minutes:"
+      echo ""
+      echo "${ERRORS}"
+    } | msmtp "${LOG_MONITOR_EMAIL_TO}"
+    log "INFO: Email sent."
+  fi
 else
   log "INFO: No errors found."
 fi

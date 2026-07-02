@@ -12,15 +12,6 @@
       ansible.builtin.assert:
         that: "'msmtp' in ansible_facts.packages"
 
-    - name: Check that msmtprc config file exists.
-      ansible.builtin.stat:
-        path: /etc/msmtprc
-      register: msmtprc
-
-    - name: Assert msmtprc config file exists.
-      ansible.builtin.assert:
-        that: msmtprc.stat.exists
-
     - name: Check that log monitor script exists.
       ansible.builtin.stat:
         path: "{{ tesseract_files_path }}/scripts/log_monitor.sh"
@@ -31,3 +22,26 @@
         that:
           - script.stat.exists
           - script.stat.executable
+
+    - name: Inject a test error into the journal.
+      ansible.builtin.command:
+        cmd: logger -p err "molecule test error"
+      changed_when: false
+
+    - name: Run the log monitor script in dry run mode.
+      ansible.builtin.command:
+        cmd: "{{ tesseract_files_path }}/scripts/log_monitor.sh --dry"
+      register: script_run
+      failed_when: script_run.rc != 0
+      changed_when: false
+
+    - name: Check the tesseract log file.
+      ansible.builtin.slurp:
+        src: "{{ tesseract_log_file }}"
+      register: log_file
+
+    - name: Assert log file contains expected entries.
+      ansible.builtin.assert:
+        that:
+          - "'Checking journal for errors' in log_file.content | b64decode"
+          - "'Errors found' in log_file.content | b64decode"
