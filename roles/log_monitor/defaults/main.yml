@@ -8,6 +8,15 @@ log_monitor_enabled: true
 log_monitor_poll_interval: 15 # Polling interval in minutes
 log_monitor_email_to: ~
 log_monitor_cursor_file: "/var/lib/log_monitor/cursor"
+log_monitor_exclude_patterns: []
+  # Regex patterns (extended regex) matched against journal error lines.
+  # Any line matching a pattern is excluded before the email is sent.
+  # If all errors are excluded, no email is sent.
+  # Examples:
+  # - "audit"                    # drop all audit subsystem noise
+  # - "kernel: usb"              # drop USB hotplug errors
+  # - "ACPI: .*not found"        # drop ACPI table warnings (wildcard)
+  # - "(wpa_supplicant|dhclient)" # drop multiple sources in one pattern
 
 email_host: ~
 email_port: ~
