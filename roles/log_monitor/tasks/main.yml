@@ -44,6 +44,14 @@
     group: root
     mode: '0775'
 
+- name: Create log monitor cursor directory if it does not exist.
+  ansible.builtin.file:
+    path: "{{ log_monitor_cursor_file | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
 - name: Template log monitor script to scripts directory.
   ansible.builtin.template:
     src: templates/log_monitor.sh.j2

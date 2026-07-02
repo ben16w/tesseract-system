@@ -2,8 +2,8 @@
 
 ####  CONFIGURATION  ####
 
-# Poll interval in minutes - how far back to check journal
-LOG_MONITOR_POLL_INTERVAL="{{ log_monitor_poll_interval }}"
+# Path to the persisted journal cursor file
+CURSOR_FILE="{{ log_monitor_cursor_file }}"
 # Email recipient address
 LOG_MONITOR_EMAIL_TO="{{ log_monitor_email_to }}"
 # Email from address
@@ -51,9 +51,24 @@ if [ "$1" == "-d" ] || [ "$1" == "--dry" ]; then
   log "INFO: Dry run enabled."
 fi
 
-log "INFO: Checking journal for errors in the last ${LOG_MONITOR_POLL_INTERVAL} minutes."
+log "INFO: Checking journal for new errors."
 
-ERRORS=$(journalctl -p err --since "${LOG_MONITOR_POLL_INTERVAL} minutes ago" --no-pager 2>/dev/null)
+# Fetch error entries since the last saved cursor position
+if [ -f "$CURSOR_FILE" ]; then
+  OUTPUT=$(journalctl -p err --after-cursor "$(cat "$CURSOR_FILE")" --show-cursor --no-pager 2>/dev/null)
+else
+  log "INFO: No cursor file found. Processing all errors since boot."
+  OUTPUT=$(journalctl -p err --show-cursor --no-pager 2>/dev/null)
+fi
+
+# Extract and persist the new cursor position
+NEW_CURSOR=$(echo "$OUTPUT" | grep "^-- cursor:" | tail -n1 | sed 's/^-- cursor: //')
+if [ -n "$NEW_CURSOR" ]; then
+  echo "$NEW_CURSOR" > "$CURSOR_FILE"
+fi
+
+# Strip the cursor line to get only error log entries
+ERRORS=$(echo "$OUTPUT" | grep -v "^-- cursor:")
 
 if [ -n "$ERRORS" ]; then
   log "INFO: Errors found. Sending email to ${LOG_MONITOR_EMAIL_TO}."
@@ -65,7 +80,7 @@ if [ -n "$ERRORS" ]; then
       echo "From: ${LOG_MONITOR_EMAIL_FROM}"
       echo "Subject: [${LOG_MONITOR_HOSTNAME}] System errors detected"
       echo ""
-      echo "The following errors were detected on ${LOG_MONITOR_HOSTNAME} in the last ${LOG_MONITOR_POLL_INTERVAL} minutes:"
+      echo "The following errors were detected on ${LOG_MONITOR_HOSTNAME}:"
       echo ""
       echo "${ERRORS}"
     } | msmtp "${LOG_MONITOR_EMAIL_TO}"

@@ -43,5 +43,5 @@
     - name: Assert log file contains expected entries.
       ansible.builtin.assert:
         that:
-          - "'Checking journal for errors' in log_file.content | b64decode"
+          - "'Checking journal for new errors' in log_file.content | b64decode"
           - "'Errors found' in log_file.content | b64decode"

@@ -10,5 +10,6 @@ email_username: ~
 email_password: ~
 
 log_monitor_email_to: ~
+log_monitor_cursor_file: "/var/lib/log_monitor/cursor"
 log_monitor_enabled: true
 log_monitor_poll_interval: 15 # Polling interval in minutes
