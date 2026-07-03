@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+####  CONFIGURATION  ####
+
+# Path to the persisted container state file
+DOCKER_STATE_FILE="{{ monitor_docker_state_file }}"
+# Log file path
+LOG_FILE="{{ tesseract_log_file }}"
+# logger tag for journald
+LOGGER_TAG="monitor-docker"
+{% if monitor_docker_exclude_containers | length > 0 %}
+# Container names excluded from problem detection
+EXCLUDE_CONTAINERS=(
+{%- for container in monitor_docker_exclude_containers %}
+  "{{ container }}"
+{%- endfor %}
+)
+{% else %}
+EXCLUDE_CONTAINERS=()
+{% endif %}
+
+####  FUNCTIONS  ####
+
+function log()
+{
+  if [ "${LOG_FILE}" != "" ]; then
+    echo "$(date '+%F %T.%3N') ${1}" >> "$LOG_FILE"
+  fi
+}
+
+function error_exit()
+{
+  echo "ERROR: ${1:-"Unknown Error"}"
+  log "ERROR: ${1:-"Unknown Error"}"
+  exit 1
+}
+
+function is_excluded()
+{
+  local name="$1"
+  for excl in "${EXCLUDE_CONTAINERS[@]}"; do
+    [ "$name" = "$excl" ] && return 0
+  done
+  return 1
+}
+
+####  CHECKS  ####
+
+if [[ $EUID -ne 0 ]]; then
+  error_exit "Script $0 must be run as root."
+fi
+
+if ! command -v docker &>/dev/null; then
+  log "INFO: Docker not found. Skipping."
+  exit 0
+fi
+
+####  MAIN CODE  ####
+
+log "INFO: Checking for problem Docker containers."
+
+# Load previous state: container_name -> problem_state
+declare -A PREV_STATE
+if [ -f "$DOCKER_STATE_FILE" ]; then
+  while IFS=' ' read -r name state; do
+    [ -n "$name" ] && [ -n "$state" ] && PREV_STATE["$name"]="$state"
+  done < "$DOCKER_STATE_FILE"
+fi
+
+# Get all container IDs
+mapfile -t CONTAINER_IDS < <(docker ps -aq 2>/dev/null)
+
+if [ "${{ '{' }}#CONTAINER_IDS[@]}" -eq 0 ]; then
+  log "INFO: No containers found."
+  : > "$DOCKER_STATE_FILE"
+  exit 0
+fi
+
+# Inspect all containers in one call
+# Format per line: <name> <status> <exit_code> <health>
+declare -A CURRENT_PROBLEMS
+{% raw %}INSPECT_FMT='{{.Name}} {{.State.Status}} {{.State.ExitCode}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}'{% endraw %}
+
+while IFS=' ' read -r name status exit_code health; do
+  name="${name#/}"
+
+  is_excluded "$name" && continue
+
+  problem=""
+  if [ "$status" = "exited" ] && [ "$exit_code" != "0" ]; then
+    problem="exited(${exit_code})"
+  elif [ "$status" = "dead" ]; then
+    problem="dead"
+  elif [ "$status" = "restarting" ]; then
+    problem="restarting"
+  fi
+
+  if [ "$health" = "unhealthy" ]; then
+    problem="${problem:+${problem},}unhealthy"
+  fi
+
+  [ -n "$problem" ] && CURRENT_PROBLEMS["$name"]="$problem"
+done < <(docker inspect --format "$INSPECT_FMT" "${CONTAINER_IDS[@]}" 2>/dev/null)
+
+# Log new or changed problem containers
+NEW_STATE_CONTENT=""
+PROBLEM_COUNT=0
+
+for name in "${!CURRENT_PROBLEMS[@]}"; do
+  problem="${CURRENT_PROBLEMS[$name]}"
+  NEW_STATE_CONTENT+="${name} ${problem}"$'\n'
+  PROBLEM_COUNT=$((PROBLEM_COUNT + 1))
+
+  if [ "${PREV_STATE[$name]:-}" != "$problem" ]; then
+    logger -t "$LOGGER_TAG" "PROBLEM: container=${name} state=${problem}"
+    log "INFO: Problem container logged: ${name} (${problem})"
+  fi
+done
+
+# Log recovered containers (were problematic, now healthy/running)
+for name in "${!PREV_STATE[@]}"; do
+  if [ -z "${CURRENT_PROBLEMS[$name]:-}" ]; then
+    logger -t "$LOGGER_TAG" "RECOVERED: container=${name}"
+    log "INFO: Container recovered: ${name}"
+  fi
+done
+
+# Persist current problem state
+printf "%s" "$NEW_STATE_CONTENT" > "$DOCKER_STATE_FILE"
+
+if [ "$PROBLEM_COUNT" -gt 0 ]; then
+  log "INFO: ${PROBLEM_COUNT} problem container(s) detected."
+else
+  log "INFO: No problem containers found."
+fi

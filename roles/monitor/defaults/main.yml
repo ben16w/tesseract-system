@@ -22,3 +22,12 @@ email_host: ~
 email_port: ~
 email_username: ~
 email_password: ~
+
+monitor_docker_enabled: false
+monitor_docker_poll_interval: 5 # Polling interval in minutes
+monitor_docker_state_file: "/var/lib/monitor/docker_state"
+monitor_docker_exclude_containers: []
+  # Container names to exclude from problem detection.
+  # Examples:
+  # - "my-container"
+  # - "another-container"

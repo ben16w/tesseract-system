@@ -34,3 +34,13 @@
         that:
           - "'Checking journal for new errors' in log_file.content | b64decode"
           - "'Errors found' in log_file.content | b64decode"
+
+    - name: Shellcheck the log monitor script.
+      ansible.builtin.command:
+        cmd: shellcheck {{ tesseract_files_path }}/scripts/monitor.sh
+      changed_when: false
+
+    - name: Shellcheck the Docker monitor script.
+      ansible.builtin.command:
+        cmd: shellcheck {{ tesseract_files_path }}/scripts/monitor_docker.sh
+      changed_when: false
