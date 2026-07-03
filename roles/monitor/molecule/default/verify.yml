@@ -19,7 +19,7 @@
 
     - name: Run the log monitor script in dry run mode.
       ansible.builtin.command:
-        cmd: "{{ tesseract_files_path }}/scripts/monitor.sh --dry"
+        cmd: "{{ monitor_scripts_path }}/monitor.sh --dry"
       register: script_run
       failed_when: script_run.rc != 0
       changed_when: false
@@ -37,10 +37,10 @@
 
     - name: Shellcheck the log monitor script.
       ansible.builtin.command:
-        cmd: shellcheck {{ tesseract_files_path }}/scripts/monitor.sh
+        cmd: shellcheck {{ monitor_scripts_path }}/monitor.sh
       changed_when: false
 
     - name: Shellcheck the Docker monitor script.
       ansible.builtin.command:
-        cmd: shellcheck {{ tesseract_files_path }}/scripts/monitor_docker.sh
+        cmd: shellcheck {{ monitor_scripts_path }}/monitor_docker.sh
       changed_when: false

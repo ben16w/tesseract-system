@@ -38,7 +38,7 @@
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ tesseract_files_path }}/scripts"
+    path: "{{ monitor_scripts_path }}"
     state: directory
     owner: root
     group: root
@@ -55,7 +55,7 @@
 - name: Template log monitor script to scripts directory.
   ansible.builtin.template:
     src: templates/monitor.sh.j2
-    dest: "{{ tesseract_files_path }}/scripts/monitor.sh"
+    dest: "{{ monitor_scripts_path }}/monitor.sh"
     owner: root
     group: root
     mode: '0755'
@@ -65,7 +65,7 @@
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     minute: "*/{{ monitor_poll_interval }}"
-    job: "flock -n /tmp/monitor.lockfile {{ tesseract_files_path }}/scripts/monitor.sh"
+    job: "flock -n /tmp/monitor.lockfile {{ monitor_scripts_path }}/monitor.sh"
 
 - name: Ensure cron job to monitor logs for errors is absent.
   when: not (monitor_enabled | bool)
@@ -76,7 +76,7 @@
 - name: Template Docker monitor script to scripts directory.
   ansible.builtin.template:
     src: templates/monitor_docker.sh.j2
-    dest: "{{ tesseract_files_path }}/scripts/monitor_docker.sh"
+    dest: "{{ monitor_scripts_path }}/monitor_docker.sh"
     owner: root
     group: root
     mode: '0755'
@@ -86,7 +86,7 @@
   ansible.builtin.cron:
     name: "Monitor Docker containers for problems."
     minute: "*/{{ monitor_docker_poll_interval }}"
-    job: "flock -n /tmp/monitor_docker.lockfile {{ tesseract_files_path }}/scripts/monitor_docker.sh"
+    job: "flock -n /tmp/monitor_docker.lockfile {{ monitor_scripts_path }}/monitor_docker.sh"
 
 - name: Ensure cron job to monitor Docker containers is absent.
   when: not (monitor_docker_enabled | bool)
