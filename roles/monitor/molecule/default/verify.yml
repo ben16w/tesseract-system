@@ -19,7 +19,7 @@
 
     - name: Run the log monitor script in dry run mode.
       ansible.builtin.command:
-        cmd: "{{ tesseract_files_path }}/scripts/log_monitor.sh --dry"
+        cmd: "{{ tesseract_files_path }}/scripts/monitor.sh --dry"
       register: script_run
       failed_when: script_run.rc != 0
       changed_when: false

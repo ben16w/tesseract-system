@@ -7,7 +7,7 @@
       - email_port is not none
       - email_username is not none
       - email_password is not none
-      - log_monitor_email_to is not none
+      - monitor_email_to is not none
 
 - name: Install msmtp and cron.
   ansible.builtin.package:
@@ -46,7 +46,7 @@
 
 - name: Create log monitor cursor directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ log_monitor_cursor_file | dirname }}"
+    path: "{{ monitor_cursor_file | dirname }}"
     state: directory
     owner: root
     group: root
@@ -54,21 +54,21 @@
 
 - name: Template log monitor script to scripts directory.
   ansible.builtin.template:
-    src: templates/log_monitor.sh.j2
-    dest: "{{ tesseract_files_path }}/scripts/log_monitor.sh"
+    src: templates/monitor.sh.j2
+    dest: "{{ tesseract_files_path }}/scripts/monitor.sh"
     owner: root
     group: root
     mode: '0755'
 
 - name: Ensure cron job to monitor logs for errors is present.
-  when: log_monitor_enabled | bool
+  when: monitor_enabled | bool
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
-    minute: "*/{{ log_monitor_poll_interval }}"
-    job: "flock -n /tmp/log_monitor.lockfile {{ tesseract_files_path }}/scripts/log_monitor.sh"
+    minute: "*/{{ monitor_poll_interval }}"
+    job: "flock -n /tmp/monitor.lockfile {{ tesseract_files_path }}/scripts/monitor.sh"
 
 - name: Ensure cron job to monitor logs for errors is absent.
-  when: not (log_monitor_enabled | bool)
+  when: not (monitor_enabled | bool)
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     state: absent

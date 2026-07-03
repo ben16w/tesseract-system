@@ -3,9 +3,9 @@
 ####  CONFIGURATION  ####
 
 # Path to the persisted journal cursor file
-CURSOR_FILE="{{ log_monitor_cursor_file }}"
+CURSOR_FILE="{{ monitor_cursor_file }}"
 # Email recipient address
-LOG_MONITOR_EMAIL_TO="{{ log_monitor_email_to }}"
+LOG_MONITOR_EMAIL_TO="{{ monitor_email_to }}"
 # Email from address
 LOG_MONITOR_EMAIL_FROM="{{ email_username }}"
 # Hostname for email subject
@@ -69,10 +69,10 @@ fi
 
 # Strip the cursor line to get only error log entries
 ERRORS=$(echo "$OUTPUT" | grep -v "^-- cursor:")
-{% if log_monitor_exclude_patterns | length > 0 %}
+{% if monitor_exclude_patterns | length > 0 %}
 
 # Filter out known noise using configured exclusion patterns
-ERRORS=$(echo "$ERRORS" | grep -vE "{{ log_monitor_exclude_patterns | join('|') }}")
+ERRORS=$(echo "$ERRORS" | grep -vE "{{ monitor_exclude_patterns | join('|') }}")
 {% endif %}
 
 if [ -n "$ERRORS" ]; then
