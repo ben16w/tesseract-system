@@ -18,13 +18,17 @@ monitor_exclude_patterns: []
   # - "(wpa_supplicant|dhclient)" # drop multiple sources in one pattern
 
 monitor_docker_enabled: false
-monitor_docker_poll_interval: 5 # Polling interval in minutes
-monitor_docker_state_file: "/var/lib/monitor/docker_state"
 monitor_docker_exclude_containers: []
-  # Container names to exclude from problem detection.
+  # Container names to exclude from monitoring entirely.
   # Examples:
   # - "my-container"
   # - "another-container"
+monitor_docker_exclude_patterns: []
+  # Regex patterns (extended regex) matched against container stderr lines.
+  # Any line matching a pattern is excluded before the email is sent.
+  # Examples:
+  # - "WARNING"
+  # - "healthcheck"
 
 tesseract_email_host: ~
 tesseract_email_port: ~

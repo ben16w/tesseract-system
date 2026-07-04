@@ -17,7 +17,7 @@
         cmd: logger -p err "molecule test error"
       changed_when: false
 
-    - name: Run the log monitor script in dry run mode.
+    - name: Run the monitor script in dry run mode.
       ansible.builtin.command:
         cmd: "{{ monitor_scripts_path }}/monitor.sh --dry"
       register: script_run
@@ -35,12 +35,7 @@
           - "'Checking journal for new errors' in log_file.content | b64decode"
           - "'Errors found' in log_file.content | b64decode"
 
-    - name: Shellcheck the log monitor script.
+    - name: Shellcheck the monitor script.
       ansible.builtin.command:
         cmd: shellcheck {{ monitor_scripts_path }}/monitor.sh
-      changed_when: false
-
-    - name: Shellcheck the Docker monitor script.
-      ansible.builtin.command:
-        cmd: shellcheck {{ monitor_scripts_path }}/monitor_docker.sh
       changed_when: false

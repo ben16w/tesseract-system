@@ -52,7 +52,7 @@
     group: root
     mode: '0750'
 
-- name: Template log monitor script to scripts directory.
+- name: Template monitor script to scripts directory.
   ansible.builtin.template:
     src: templates/monitor.sh.j2
     dest: "{{ monitor_scripts_path }}/monitor.sh"
@@ -60,36 +60,15 @@
     group: root
     mode: '0755'
 
-- name: Ensure cron job to monitor logs for errors is present.
+- name: Ensure cron job to monitor for errors is present.
   when: monitor_enabled | bool
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     minute: "*/{{ monitor_poll_interval }}"
     job: "flock -n /tmp/monitor.lockfile {{ monitor_scripts_path }}/monitor.sh"
 
-- name: Ensure cron job to monitor logs for errors is absent.
+- name: Ensure cron job to monitor for errors is absent.
   when: not (monitor_enabled | bool)
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
-    state: absent
-
-- name: Template Docker monitor script to scripts directory.
-  ansible.builtin.template:
-    src: templates/monitor_docker.sh.j2
-    dest: "{{ monitor_scripts_path }}/monitor_docker.sh"
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Ensure cron job to monitor Docker containers is present.
-  when: monitor_docker_enabled | bool
-  ansible.builtin.cron:
-    name: "Monitor Docker containers for problems."
-    minute: "*/{{ monitor_docker_poll_interval }}"
-    job: "flock -n /tmp/monitor_docker.lockfile {{ monitor_scripts_path }}/monitor_docker.sh"
-
-- name: Ensure cron job to monitor Docker containers is absent.
-  when: not (monitor_docker_enabled | bool)
-  ansible.builtin.cron:
-    name: "Monitor Docker containers for problems."
     state: absent
