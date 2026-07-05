@@ -1,6 +1,6 @@
 ---
 
-tesseract_files_path: "/root"
+autoshutdown_scripts_path: /opt/tesseract/scripts
 
 autoshutdown_idle_time: 21600 # Time in seconds to consider the server idle
 autoshutdown_max_cpu: 25 # Maximum CPU usage percentage to consider the server idle

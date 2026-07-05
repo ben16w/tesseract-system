@@ -1,5 +1,5 @@
 ---
 
 tesseract_username: ~
-samba_password: ~
+tesseract_samba_password: ~
 samba_path: ~

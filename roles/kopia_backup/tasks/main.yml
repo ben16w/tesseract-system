@@ -2,10 +2,10 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - email_host is not none
-      - email_port is not none
-      - email_username is not none
-      - email_password is not none
+      - tesseract_email_host is not none
+      - tesseract_email_port is not none
+      - tesseract_email_username is not none
+      - tesseract_email_password is not none
       - kopia_backup_bb_key_id is not none
       - kopia_backup_bb_key is not none
       - kopia_backup_bb_bucket is not none
@@ -60,15 +60,15 @@
       tls_starttls off
       tls_certcheck off
       auth login
-      host "{{ email_host }}"
-      port "{{ email_port }}"
-      user "{{ email_username }}"
-      from "{{ email_username }}"
-      password "{{ email_password }}"
+      host "{{ tesseract_email_host }}"
+      port "{{ tesseract_email_port }}"
+      user "{{ tesseract_email_username }}"
+      from "{{ tesseract_email_username }}"
+      password "{{ tesseract_email_password }}"
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ tesseract_files_path }}/scripts"
+    path: "{{ kopia_backup_scripts_path }}"
     state: directory
     owner: root
     group: root
@@ -76,8 +76,8 @@
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
-    repo: "{{ tesseract_scripts_repo }}"
-    dest: "{{ tesseract_files_path }}/scripts"
+    repo: "{{ kopia_backup_scripts_repo }}"
+    dest: "{{ kopia_backup_scripts_path }}"
     version: main
     force: true
   register: download_scripts
@@ -87,7 +87,7 @@
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ tesseract_files_path }}/scripts/.env"
+    path: "{{ kopia_backup_scripts_path }}/.env"
     marker: "# {mark} kopia_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -99,8 +99,8 @@
       KOPIA_BACKUP_VERIFY_ENABLED="{{ kopia_backup_verify_enabled }}"
       KOPIA_BACKUP_VERIFY_PERCENT="{{ kopia_backup_verify_percent }}"
       KOPIA_BACKUP_PARALLELISM="{{ kopia_backup_parallelism }}"
-      LOG_FILE="{{ tesseract_log_file }}"
-      EMAIL_USERNAME="{{ email_username }}"
+      LOG_FILE="{{ kopia_backup_log_file }}"
+      EMAIL_USERNAME="{{ tesseract_email_username }}"
 
 - name: Make sure kopia logging directory exists.
   ansible.builtin.file:
@@ -165,5 +165,5 @@
     minute: "{{ kopia_backup_minute }}"
     hour: "{{ kopia_backup_hour }}"
     day: "{{ kopia_backup_day }}"
-    job: "bash {{ tesseract_files_path }}/scripts/kopia_backup.sh{{ kopia_backup_paths_string }}"
+    job: "bash {{ kopia_backup_scripts_path }}/kopia_backup.sh{{ kopia_backup_paths_string }}"
   when: kopia_backup_paths | length > 0

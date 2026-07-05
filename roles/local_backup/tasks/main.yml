@@ -3,10 +3,10 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - email_host is not none
-      - email_port is not none
-      - email_username is not none
-      - email_password is not none
+      - tesseract_email_host is not none
+      - tesseract_email_port is not none
+      - tesseract_email_username is not none
+      - tesseract_email_password is not none
 
 - name: Install msmtp, git and cron.
   ansible.builtin.package:
@@ -30,11 +30,11 @@
       tls_starttls off
       tls_certcheck off
       auth login
-      host "{{ email_host }}"
-      port "{{ email_port }}"
-      user "{{ email_username }}"
-      from "{{ email_username }}"
-      password "{{ email_password }}"
+      host "{{ tesseract_email_host }}"
+      port "{{ tesseract_email_port }}"
+      user "{{ tesseract_email_username }}"
+      from "{{ tesseract_email_username }}"
+      password "{{ tesseract_email_password }}"
 
 - name: Create backup destination directory if it does not exist
   ansible.builtin.file:
@@ -46,7 +46,7 @@
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ tesseract_files_path }}/scripts"
+    path: "{{ local_backup_scripts_path }}"
     state: directory
     owner: root
     group: root
@@ -54,8 +54,8 @@
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
-    repo: "{{ tesseract_scripts_repo }}"
-    dest: "{{ tesseract_files_path }}/scripts"
+    repo: "{{ local_backup_scripts_repo }}"
+    dest: "{{ local_backup_scripts_path }}"
     version: main
     force: true
   register: download_scripts
@@ -65,7 +65,7 @@
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ tesseract_files_path }}/scripts/.env"
+    path: "{{ local_backup_scripts_path }}/.env"
     marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -76,8 +76,8 @@
       LOCAL_BACKUP_KEEP_DAILY="{{ local_backup_keep_daily }}"
       LOCAL_BACKUP_KEEP_WEEKLY="{{ local_backup_keep_weekly }}"
       LOCAL_BACKUP_KEEP_MONTHLY="{{ local_backup_keep_monthly }}"
-      LOG_FILE="{{ tesseract_log_file }}"
-      EMAIL_USERNAME="{{ email_username }}"
+      LOG_FILE="{{ local_backup_log_file }}"
+      EMAIL_USERNAME="{{ tesseract_email_username }}"
 
 
 - name: Initialize an empty string for local backup paths.
@@ -97,5 +97,5 @@
     minute: "{{ local_backup_minute }}"
     hour: "{{ local_backup_hour }}"
     day: "{{ local_backup_day }}"
-    job: "bash {{ tesseract_files_path }}/scripts/local_backup.sh {{ backup_directories_string }}"
+    job: "bash {{ local_backup_scripts_path }}/local_backup.sh {{ backup_directories_string }}"
   when: local_backup_paths | length > 0

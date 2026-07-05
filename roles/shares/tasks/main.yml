@@ -5,7 +5,7 @@
     that:
       - shares_host is not none
       - shares_path is not none
-      - samba_password is not none
+      - tesseract_samba_password is not none
       - tesseract_username is not none
 
 - name: Install samba software.
@@ -55,7 +55,7 @@
     group: root
     block: |
       username={{ tesseract_username }}
-      password={{ samba_password }}
+      password={{ tesseract_samba_password }}
 
 # - name: Change share ownership to tesseract user.
 #   loop: "{{ shares }}"

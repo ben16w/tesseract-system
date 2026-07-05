@@ -4,10 +4,10 @@
   ansible.builtin.assert:
     that:
       - snapraid_version is not none
-      - email_username is not none
-      - email_host is not none
-      - email_port is not none
-      - email_password is not none
+      - tesseract_email_username is not none
+      - tesseract_email_host is not none
+      - tesseract_email_port is not none
+      - tesseract_email_password is not none
       - tesseract_hostname is not none
 
 - name: Install C Compiler with package manager.

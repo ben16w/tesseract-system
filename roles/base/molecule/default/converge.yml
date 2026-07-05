@@ -5,6 +5,6 @@
     tesseract_username: "tesseract"
     tesseract_password: "password"
     tesseract_hostname: "{{ ansible_facts['hostname'] }}"
-    admin_password: "password"
+    tesseract_admin_password: "password"
   roles:
     - role: base

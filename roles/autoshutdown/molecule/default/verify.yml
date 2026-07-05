@@ -7,7 +7,7 @@
 
     - name: Run the autoshutdown script.
       ansible.builtin.command:
-        cmd: "{{ tesseract_files_path }}/scripts/autoshutdown.sh -d"
+        cmd: "{{ autoshutdown_scripts_path }}/autoshutdown.sh -d"
       register: first_run
       failed_when: first_run.rc != 0
       changed_when: false
@@ -19,7 +19,7 @@
 
     - name: Run the autoshutdown script again.
       ansible.builtin.command:
-        cmd: "{{ tesseract_files_path }}/scripts/autoshutdown.sh -d"
+        cmd: "{{ autoshutdown_scripts_path }}/autoshutdown.sh -d"
       register: second_run
       failed_when: second_run.rc != 0
       changed_when: false

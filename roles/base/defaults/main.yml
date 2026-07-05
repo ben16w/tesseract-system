@@ -1,13 +1,9 @@
 ---
 
-tesseract_files_path: "/root"
-
-admin_username: admin
-admin_password: ~
+tesseract_admin_username: admin
+tesseract_admin_password: ~
 
 tesseract_username: ~
 tesseract_password: ~
 
 tesseract_hostname: ~
-
-tesseract_log_file: "/var/log/tesseract.log"

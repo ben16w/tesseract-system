@@ -8,7 +8,7 @@
 
 - name: Create scripts directory if it does not exist.
   ansible.builtin.file:
-    path: "{{ tesseract_files_path }}/scripts"
+    path: "{{ provision_scripts_path }}"
     state: directory
     owner: root
     group: root
@@ -16,8 +16,8 @@
 
 - name: Git checkout scripts to scripts directory.
   ansible.builtin.git:
-    repo: "{{ tesseract_scripts_repo }}"
-    dest: "{{ tesseract_files_path }}/scripts"
+    repo: "{{ provision_scripts_repo }}"
+    dest: "{{ provision_scripts_path }}"
     version: main
     force: true
   register: download_scripts
@@ -29,7 +29,7 @@
   loop: "{{ provision_volumes }}"
   ansible.builtin.command:
     cmd: >
-      /bin/bash {{ tesseract_files_path }}/scripts/provision_volume.sh
+      /bin/bash {{ provision_scripts_path }}/provision_volume.sh
       {% if item.generate_data == true %}-d{% endif %}
       -s '{{ item.size }}'
       -p '{{ item.password }}'

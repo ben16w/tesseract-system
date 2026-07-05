@@ -3,7 +3,7 @@
   hosts: all
   vars:
     tesseract_username: tesseract
-    samba_password: password
+    tesseract_samba_password: password
     samba_path: /media/storage
   roles:
     - role: samba

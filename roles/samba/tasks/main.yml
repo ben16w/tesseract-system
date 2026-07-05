@@ -4,7 +4,7 @@
   ansible.builtin.assert:
     that:
       - tesseract_username is not none
-      - samba_password is not none
+      - tesseract_samba_password is not none
       - samba_path is not none
 
 - name: Ensure tesseract user exists.
@@ -66,7 +66,7 @@
   ansible.builtin.shell: >
     set -o nounset -o pipefail -o errexit &&
     (pdbedit --user={{ tesseract_username }} 2>&1 > /dev/null) \
-    || (echo {{ samba_password }}; echo {{ samba_password }}) \
+    || (echo {{ tesseract_samba_password }}; echo {{ tesseract_samba_password }}) \
     | smbpasswd -s -a {{ tesseract_username }}
   args:
     executable: /bin/bash

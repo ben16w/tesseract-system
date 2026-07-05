@@ -27,7 +27,7 @@ snapraid_excludes:
   - "*.unrecoverable"
   - "*.!sync"
 
-email_username: ~
-email_host: ~
-email_port: ~
-email_password: ~
+tesseract_email_username: ~
+tesseract_email_host: ~
+tesseract_email_port: ~
+tesseract_email_password: ~

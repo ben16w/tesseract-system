@@ -15,18 +15,18 @@ sendon = error
 ; set to false to get full programm output via email
 short = true
 subject = [SnapRAID] - {{ tesseract_hostname }} - Status Report:
-from = {{ email_username }}
-to = {{ email_username }}
+from = {{ tesseract_email_username }}
+to = {{ tesseract_email_username }}
 ; maximum email size in KiB
 maxsize = 500
 
 [smtp]
-host = {{ email_host }}
-port = {{ email_port }}
+host = {{ tesseract_email_host }}
+port = {{ tesseract_email_port }}
 ssl = true
 tls = false
-user = {{ email_username }}
-password = {{ email_password }}
+user = {{ tesseract_email_username }}
+password = {{ tesseract_email_password }}
 
 [scrub]
 enabled = true
