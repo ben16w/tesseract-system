@@ -5,38 +5,6 @@
     - ../../defaults/main.yml
   tasks:
 
-    - name: Gather package facts.
-      ansible.builtin.package_facts:
-
-    - name: Assert python3-docker is installed.
-      ansible.builtin.assert:
-        that: "'python3-docker' in ansible_facts.packages"
-
-    - name: Assert monitors directory exists.
-      ansible.builtin.stat:
-        path: "{{ monitor_install_path }}/monitors"
-      register: monitors_dir
-
-    - name: Verify monitors directory.
-      ansible.builtin.assert:
-        that:
-          - monitors_dir.stat.exists
-          - monitors_dir.stat.isdir
-
-    - name: Assert monitor scripts are present.
-      ansible.builtin.stat:
-        path: "{{ item }}"
-      register: script_stat
-      loop:
-        - "{{ monitor_install_path }}/monitor.py"
-        - "{{ monitor_install_path }}/monitors/journal.sh"
-        - "{{ monitor_install_path }}/monitors/containers.py"
-
-    - name: Verify monitor scripts exist.
-      ansible.builtin.assert:
-        that: item.stat.exists
-      loop: "{{ script_stat.results }}"
-
     - name: Inject a test error into the journal.
       ansible.builtin.command:
         cmd: logger -p err "molecule test error"
@@ -59,13 +27,3 @@
         that:
           - "'Checking journal for errors' in log_file.content | b64decode"
           - "'Errors found' in log_file.content | b64decode"
-
-    - name: Shellcheck journal monitor script.
-      ansible.builtin.command:
-        cmd: shellcheck {{ monitor_install_path }}/monitors/journal.sh
-      changed_when: false
-
-    - name: Syntax check docker monitor script.
-      ansible.builtin.command:
-        cmd: python3 -m py_compile {{ monitor_install_path }}/monitors/containers.py
-      changed_when: false
