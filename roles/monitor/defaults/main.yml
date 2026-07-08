@@ -5,7 +5,7 @@ monitor_config_file: /etc/monitor/monitor.env
 
 monitor_enabled: true
 monitor_poll_interval: 15 # Polling interval in minutes
-monitor_email_to: ~
+monitor_alert_email: ~
 monitor_exclude_patterns: []
   # Regex patterns (extended regex) matched against journal error lines.
   # Any line matching a pattern is excluded before the email is sent.

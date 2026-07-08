@@ -3,11 +3,11 @@
 - name: Assert that all required inputs have been provided.
   ansible.builtin.assert:
     that:
-      - email_host is not none
-      - email_port is not none
-      - email_username is not none
-      - email_password is not none
-      - monitor_email_to is not none
+      - tesseract_email_host is not none
+      - tesseract_email_port is not none
+      - tesseract_email_username is not none
+      - tesseract_email_password is not none
+      - monitor_alert_email is not none
 
 - name: Install cron and python3-docker.
   ansible.builtin.package:
@@ -32,11 +32,11 @@
     group: root
     mode: '0600'
     content: |
-      EMAIL_TO={{ monitor_email_to }}
-      EMAIL_FROM={{ email_username }}
-      EMAIL_HOST={{ email_host }}
-      EMAIL_PORT={{ email_port }}
-      EMAIL_PASSWORD={{ email_password }}
+      EMAIL_TO={{ monitor_alert_email }}
+      EMAIL_FROM={{ tesseract_email_username }}
+      EMAIL_HOST={{ tesseract_email_host }}
+      EMAIL_PORT={{ tesseract_email_port }}
+      EMAIL_PASSWORD={{ tesseract_email_password }}
       LOG_FILE={{ tesseract_log_file }}
       POLL_INTERVAL={{ monitor_poll_interval }}
       EXCLUDE_PATTERNS={{ monitor_exclude_patterns | join('|') }}

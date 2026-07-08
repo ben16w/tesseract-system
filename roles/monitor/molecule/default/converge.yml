@@ -2,10 +2,10 @@
 - name: Converge
   hosts: all
   vars:
-    email_username: "email@email.com"
-    email_host: "email.com"
-    email_port: "465"
-    email_password: "password"
-    monitor_email_to: "admin@email.com"
+    tesseract_email_username: "email@email.com"
+    tesseract_email_host: "email.com"
+    tesseract_email_port: "465"
+    tesseract_email_password: "password"
+    monitor_alert_email: "admin@email.com"
   roles:
     - role: monitor
