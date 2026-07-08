@@ -28,12 +28,13 @@ def parse_config(path):
 
 
 def log(message, log_file):
-    """Append a timestamped message to the log file."""
-    if not log_file:
-        return
-    timestamp = datetime.now().strftime("%F %T.%3N")
-    with open(log_file, "a") as f:
-        f.write(f"{timestamp} {message}\n")
+    """Print a timestamped message to stdout and optionally append to log file."""
+    now = datetime.now()
+    line = f"{now.strftime('%Y-%m-%d %H:%M:%S')}.{now.microsecond // 1000:03d} {message}"
+    print(line)
+    if log_file:
+        with open(log_file, "a") as f:
+            f.write(line + "\n")
 
 
 def send_email(config, subject, body):
@@ -101,7 +102,7 @@ def main():
             result = subprocess.run(
                 [str(script), tmp_dir],
                 env=env,
-                capture_output=True,
+                stderr=subprocess.PIPE,
                 text=True,
             )
             if result.returncode != 0:

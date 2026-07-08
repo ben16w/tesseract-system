@@ -24,12 +24,13 @@ DOCKER_EXCLUDE_PATTERNS = os.environ.get("DOCKER_EXCLUDE_PATTERNS", "")
 
 
 def log(message):
-    """Append a timestamped message to the log file."""
-    if not LOG_FILE:
-        return
-    timestamp = datetime.now().strftime("%F %T.%3N")
-    with open(LOG_FILE, "a") as f:
-        f.write(f"{timestamp} {message}\n")
+    """Print a timestamped message to stdout and optionally append to log file."""
+    now = datetime.now()
+    line = f"{now.strftime('%Y-%m-%d %H:%M:%S')}.{now.microsecond // 1000:03d} {message}"
+    print(line)
+    if LOG_FILE:
+        with open(LOG_FILE, "a") as f:
+            f.write(line + "\n")
 
 
 def main():

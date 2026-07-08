@@ -1,7 +1,7 @@
 ---
 
-monitor_scripts_path: /opt/tesseract/scripts
-monitor_config_file: /etc/monitor/monitor.env
+monitor_install_path: /opt/monitor
+monitor_config_file: /opt/monitor/monitor.env
 
 monitor_enabled: true
 monitor_poll_interval: 15 # Polling interval in minutes

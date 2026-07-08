@@ -43,42 +43,18 @@
       DOCKER_EXCLUDE_CONTAINERS={{ monitor_docker_exclude_containers | join(' ') }}
       DOCKER_EXCLUDE_PATTERNS={{ monitor_docker_exclude_patterns | join('|') }}
 
-- name: Create scripts directory.
+- name: Create install directory.
   ansible.builtin.file:
-    path: "{{ monitor_scripts_path }}"
+    path: "{{ monitor_install_path }}"
     state: directory
     owner: root
     group: root
     mode: '0775'
 
-- name: Create monitors directory.
-  ansible.builtin.file:
-    path: "{{ monitor_scripts_path }}/monitors"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy monitor orchestrator script.
+- name: Copy monitor scripts.
   ansible.builtin.copy:
-    src: files/monitor.py
-    dest: "{{ monitor_scripts_path }}/monitor.py"
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy journal monitor script.
-  ansible.builtin.copy:
-    src: files/monitors/journal.sh
-    dest: "{{ monitor_scripts_path }}/monitors/journal.sh"
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy docker monitor script.
-  ansible.builtin.copy:
-    src: files/monitors/docker.py
-    dest: "{{ monitor_scripts_path }}/monitors/docker.py"
+    src: monitor/
+    dest: "{{ monitor_install_path }}/"
     owner: root
     group: root
     mode: '0755'
@@ -88,7 +64,7 @@
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     minute: "*/{{ monitor_poll_interval }}"
-    job: "flock -n /tmp/monitor.lockfile python3 {{ monitor_scripts_path }}/monitor.py {{ monitor_config_file }}"
+    job: "flock -n /tmp/monitor.lockfile python3 {{ monitor_install_path }}/monitor.py {{ monitor_config_file }}"
 
 - name: Ensure cron job to monitor for errors is absent.
   when: not (monitor_enabled | bool)

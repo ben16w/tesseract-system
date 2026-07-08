@@ -15,8 +15,11 @@ LOG_FILE="${LOG_FILE:-}"
 EXCLUDE_PATTERNS="${EXCLUDE_PATTERNS:-}"
 
 log() {
+  local line
+  line="$(date '+%Y-%m-%d %H:%M:%S.%3N') $1"
+  echo "$line"
   if [[ -n "$LOG_FILE" ]]; then
-    echo "$(date '+%F %T.%3N') $1" >> "$LOG_FILE"
+    echo "$line" >> "$LOG_FILE"
   fi
 }
 

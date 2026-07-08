@@ -14,7 +14,7 @@
 
     - name: Assert monitors directory exists.
       ansible.builtin.stat:
-        path: "{{ monitor_scripts_path }}/monitors"
+        path: "{{ monitor_install_path }}/monitors"
       register: monitors_dir
 
     - name: Verify monitors directory.
@@ -28,9 +28,9 @@
         path: "{{ item }}"
       register: script_stat
       loop:
-        - "{{ monitor_scripts_path }}/monitor.py"
-        - "{{ monitor_scripts_path }}/monitors/journal.sh"
-        - "{{ monitor_scripts_path }}/monitors/docker.py"
+        - "{{ monitor_install_path }}/monitor.py"
+        - "{{ monitor_install_path }}/monitors/journal.sh"
+        - "{{ monitor_install_path }}/monitors/containers.py"
 
     - name: Verify monitor scripts exist.
       ansible.builtin.assert:
@@ -44,7 +44,7 @@
 
     - name: Run the monitor script in dry run mode.
       ansible.builtin.command:
-        cmd: "python3 {{ monitor_scripts_path }}/monitor.py {{ monitor_config_file }} --dry"
+        cmd: "python3 {{ monitor_install_path }}/monitor.py {{ monitor_config_file }} --dry"
       register: script_run
       failed_when: script_run.rc != 0
       changed_when: false
@@ -62,10 +62,10 @@
 
     - name: Shellcheck journal monitor script.
       ansible.builtin.command:
-        cmd: shellcheck {{ monitor_scripts_path }}/monitors/journal.sh
+        cmd: shellcheck {{ monitor_install_path }}/monitors/journal.sh
       changed_when: false
 
     - name: Syntax check docker monitor script.
       ansible.builtin.command:
-        cmd: python3 -m py_compile {{ monitor_scripts_path }}/monitors/docker.py
+        cmd: python3 -m py_compile {{ monitor_install_path }}/monitors/containers.py
       changed_when: false
