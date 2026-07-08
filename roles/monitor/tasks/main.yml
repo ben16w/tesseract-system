@@ -38,7 +38,6 @@
       EMAIL_PORT={{ email_port }}
       EMAIL_PASSWORD={{ email_password }}
       LOG_FILE={{ tesseract_log_file }}
-      CURSOR_FILE={{ monitor_cursor_file }}
       POLL_INTERVAL={{ monitor_poll_interval }}
       EXCLUDE_PATTERNS={{ monitor_exclude_patterns | join('|') }}
       DOCKER_EXCLUDE_CONTAINERS={{ monitor_docker_exclude_containers | join(' ') }}
@@ -59,14 +58,6 @@
     owner: root
     group: root
     mode: '0755'
-
-- name: Create monitor cursor directory.
-  ansible.builtin.file:
-    path: "{{ monitor_cursor_file | dirname }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0750'
 
 - name: Copy monitor orchestrator script.
   ansible.builtin.copy:
