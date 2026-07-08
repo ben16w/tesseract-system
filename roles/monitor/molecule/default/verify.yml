@@ -8,9 +8,34 @@
     - name: Gather package facts.
       ansible.builtin.package_facts:
 
-    - name: Assert msmtp is installed.
+    - name: Assert python3-docker is installed.
       ansible.builtin.assert:
-        that: "'msmtp' in ansible_facts.packages"
+        that: "'python3-docker' in ansible_facts.packages"
+
+    - name: Assert monitors directory exists.
+      ansible.builtin.stat:
+        path: "{{ monitor_scripts_path }}/monitors"
+      register: monitors_dir
+
+    - name: Verify monitors directory.
+      ansible.builtin.assert:
+        that:
+          - monitors_dir.stat.exists
+          - monitors_dir.stat.isdir
+
+    - name: Assert monitor scripts are present.
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: script_stat
+      loop:
+        - "{{ monitor_scripts_path }}/monitor.py"
+        - "{{ monitor_scripts_path }}/monitors/journal.sh"
+        - "{{ monitor_scripts_path }}/monitors/docker.py"
+
+    - name: Verify monitor scripts exist.
+      ansible.builtin.assert:
+        that: item.stat.exists
+      loop: "{{ script_stat.results }}"
 
     - name: Inject a test error into the journal.
       ansible.builtin.command:
@@ -19,12 +44,12 @@
 
     - name: Run the monitor script in dry run mode.
       ansible.builtin.command:
-        cmd: "{{ monitor_scripts_path }}/monitor.sh --dry"
+        cmd: "python3 {{ monitor_scripts_path }}/monitor.py {{ monitor_config_file }} --dry"
       register: script_run
       failed_when: script_run.rc != 0
       changed_when: false
 
-    - name: Check the tesseract log file.
+    - name: Check the log file.
       ansible.builtin.slurp:
         src: "{{ tesseract_log_file }}"
       register: log_file
@@ -35,7 +60,12 @@
           - "'Checking journal for new errors' in log_file.content | b64decode"
           - "'Errors found' in log_file.content | b64decode"
 
-    - name: Shellcheck the monitor script.
+    - name: Shellcheck journal monitor script.
       ansible.builtin.command:
-        cmd: shellcheck {{ monitor_scripts_path }}/monitor.sh
+        cmd: shellcheck {{ monitor_scripts_path }}/monitors/journal.sh
+      changed_when: false
+
+    - name: Syntax check docker monitor script.
+      ansible.builtin.command:
+        cmd: python3 -m py_compile {{ monitor_scripts_path }}/monitors/docker.py
       changed_when: false

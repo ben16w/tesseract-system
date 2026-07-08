@@ -1,7 +1,7 @@
 ---
 
 monitor_scripts_path: /opt/tesseract/scripts
-monitor_log_file: "/var/log/tesseract.log"
+monitor_config_file: /etc/monitor/monitor.env
 
 monitor_enabled: true
 monitor_poll_interval: 15 # Polling interval in minutes
@@ -17,7 +17,6 @@ monitor_exclude_patterns: []
   # - "ACPI: .*not found"        # drop ACPI table warnings (wildcard)
   # - "(wpa_supplicant|dhclient)" # drop multiple sources in one pattern
 
-monitor_docker_enabled: false
 monitor_docker_exclude_containers: []
   # Container names to exclude from monitoring entirely.
   # Examples:
@@ -30,6 +29,7 @@ monitor_docker_exclude_patterns: []
   # - "WARNING"
   # - "healthcheck"
 
+tesseract_log_file: /var/log/tesseract.log
 tesseract_email_host: ~
 tesseract_email_port: ~
 tesseract_email_username: ~

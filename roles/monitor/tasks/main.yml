@@ -9,34 +9,42 @@
       - email_password is not none
       - monitor_email_to is not none
 
-- name: Install msmtp and cron.
+- name: Install cron and python3-docker.
   ansible.builtin.package:
     name:
-      - msmtp
       - cron
+      - python3-docker
     update_cache: true
 
-- name: Add msmtp email global config.
-  no_log: true
-  ansible.builtin.blockinfile:
-    path: /etc/msmtprc
-    create: true
+- name: Create monitor config directory.
+  ansible.builtin.file:
+    path: "{{ monitor_config_file | dirname }}"
+    state: directory
     owner: root
     group: root
-    mode: '0644'
-    block: |
-      account default
-      tls on
-      tls_starttls off
-      tls_certcheck off
-      auth login
-      host "{{ email_host }}"
-      port "{{ email_port }}"
-      user "{{ email_username }}"
-      from "{{ email_username }}"
-      password "{{ email_password }}"
+    mode: '0700'
 
-- name: Create scripts directory if it does not exist.
+- name: Write monitor config file.
+  no_log: true
+  ansible.builtin.copy:
+    dest: "{{ monitor_config_file }}"
+    owner: root
+    group: root
+    mode: '0600'
+    content: |
+      EMAIL_TO={{ monitor_email_to }}
+      EMAIL_FROM={{ email_username }}
+      EMAIL_HOST={{ email_host }}
+      EMAIL_PORT={{ email_port }}
+      EMAIL_PASSWORD={{ email_password }}
+      LOG_FILE={{ tesseract_log_file }}
+      CURSOR_FILE={{ monitor_cursor_file }}
+      POLL_INTERVAL={{ monitor_poll_interval }}
+      EXCLUDE_PATTERNS={{ monitor_exclude_patterns | join('|') }}
+      DOCKER_EXCLUDE_CONTAINERS={{ monitor_docker_exclude_containers | join(' ') }}
+      DOCKER_EXCLUDE_PATTERNS={{ monitor_docker_exclude_patterns | join('|') }}
+
+- name: Create scripts directory.
   ansible.builtin.file:
     path: "{{ monitor_scripts_path }}"
     state: directory
@@ -44,7 +52,15 @@
     group: root
     mode: '0775'
 
-- name: Create log monitor cursor directory if it does not exist.
+- name: Create monitors directory.
+  ansible.builtin.file:
+    path: "{{ monitor_scripts_path }}/monitors"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create monitor cursor directory.
   ansible.builtin.file:
     path: "{{ monitor_cursor_file | dirname }}"
     state: directory
@@ -52,10 +68,26 @@
     group: root
     mode: '0750'
 
-- name: Template monitor script to scripts directory.
-  ansible.builtin.template:
-    src: templates/monitor.sh.j2
-    dest: "{{ monitor_scripts_path }}/monitor.sh"
+- name: Copy monitor orchestrator script.
+  ansible.builtin.copy:
+    src: files/monitor.py
+    dest: "{{ monitor_scripts_path }}/monitor.py"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy journal monitor script.
+  ansible.builtin.copy:
+    src: files/monitors/journal.sh
+    dest: "{{ monitor_scripts_path }}/monitors/journal.sh"
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy docker monitor script.
+  ansible.builtin.copy:
+    src: files/monitors/docker.py
+    dest: "{{ monitor_scripts_path }}/monitors/docker.py"
     owner: root
     group: root
     mode: '0755'
@@ -65,7 +97,7 @@
   ansible.builtin.cron:
     name: "Monitor system logs for errors."
     minute: "*/{{ monitor_poll_interval }}"
-    job: "flock -n /tmp/monitor.lockfile {{ monitor_scripts_path }}/monitor.sh"
+    job: "flock -n /tmp/monitor.lockfile python3 {{ monitor_scripts_path }}/monitor.py {{ monitor_config_file }}"
 
 - name: Ensure cron job to monitor for errors is absent.
   when: not (monitor_enabled | bool)
