@@ -58,6 +58,7 @@
     owner: root
     group: root
     mode: '0755'
+    force: true
 
 - name: Ensure cron job to monitor for errors is present.
   when: monitor_enabled | bool

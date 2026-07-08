@@ -31,7 +31,7 @@ if [[ -n "$EXCLUDE_PATTERNS" ]]; then
   ERRORS=$(echo "$ERRORS" | grep -vE "$EXCLUDE_PATTERNS" || true)
 fi
 
-ERRORS=$(echo "$ERRORS" | sed '/^$/d')
+ERRORS=$(echo "$ERRORS" | grep -v "^--" | sed '/^$/d')
 
 if [[ -n "$ERRORS" ]]; then
   log "INFO: [journal] Errors found."
