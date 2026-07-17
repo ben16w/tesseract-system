@@ -4,4 +4,4 @@
 #  vars:
 
   roles:
-    - role: clean
+    - role: tesseract.system.clean

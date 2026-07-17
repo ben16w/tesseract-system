@@ -11,4 +11,4 @@
     kopia_backup_bb_bucket: "bucket"
     kopia_backup_password: "password"
   roles:
-    - role: kopia_backup
+    - role: tesseract.system.kopia_backup

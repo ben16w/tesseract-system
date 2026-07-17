@@ -8,4 +8,4 @@
     autoshutdown_pre_shutdown_commands:
       - "echo 'TEST SUCCESSFUL'"
   roles:
-    - role: autoshutdown
+    - role: tesseract.system.autoshutdown

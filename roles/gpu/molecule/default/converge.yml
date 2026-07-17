@@ -7,4 +7,4 @@
     gpu_amd_version_short: "7.2.1"
     gpu_amd_version_long: "7.2.1.70201-1"
   roles:
-    - role: gpu
+    - role: tesseract.system.gpu

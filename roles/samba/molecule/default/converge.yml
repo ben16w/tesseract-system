@@ -6,4 +6,4 @@
     tesseract_samba_password: password
     samba_path: /media/storage
   roles:
-    - role: samba
+    - role: tesseract.system.samba

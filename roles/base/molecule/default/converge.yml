@@ -7,4 +7,4 @@
     tesseract_hostname: "{{ ansible_facts['hostname'] }}"
     tesseract_admin_password: "password"
   roles:
-    - role: base
+    - role: tesseract.system.base

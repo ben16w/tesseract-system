@@ -10,4 +10,4 @@
       - path: /tmp/data
         stop_docker: false
   roles:
-    - role: mirror_backup
+    - role: tesseract.system.mirror_backup

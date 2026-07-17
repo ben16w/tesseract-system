@@ -7,4 +7,4 @@
     tesseract_email_port: "465"
     tesseract_email_password: "password"
   roles:
-    - role: local_backup
+    - role: tesseract.system.local_backup

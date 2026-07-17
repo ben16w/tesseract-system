@@ -7,4 +7,4 @@
     tesseract_email_port: "465"
     tesseract_email_password: "password"
   roles:
-    - role: rsync_backup
+    - role: tesseract.system.rsync_backup

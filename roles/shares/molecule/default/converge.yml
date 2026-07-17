@@ -7,4 +7,4 @@
     shares_path: /media/shares
     tesseract_samba_password: password
   roles:
-    - role: shares
+    - role: tesseract.system.shares

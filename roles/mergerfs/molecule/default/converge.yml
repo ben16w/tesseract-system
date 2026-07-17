@@ -8,4 +8,4 @@
       - /media/disk1
       - /media/disk2
   roles:
-    - role: mergerfs
+    - role: tesseract.system.mergerfs

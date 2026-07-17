@@ -18,4 +18,4 @@
       - /mnt/parity2
       - /mnt/parity3
   roles:
-    - role: snapraid
+    - role: tesseract.system.snapraid
