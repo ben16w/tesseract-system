@@ -1,9 +1,11 @@
 ---
 
 rsync_backup_log_file: /var/log/tesseract.log
-rsync_backup_scripts_path: /opt/tesseract/scripts
 
-rsync_backup_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+rsync_backup_scripts_repo: https://github.com/ben16w/tesseract-common.git
+rsync_backup_scripts_version: main
+rsync_backup_scripts_path: /opt/common
+rsync_backup_scripts_subdir: scripts
 
 rsync_backup_paths: []
 

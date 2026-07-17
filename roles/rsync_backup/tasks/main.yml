@@ -45,28 +45,20 @@
     group: root
     mode: '0755'
 
-- name: Create scripts directory if it does not exist.
-  ansible.builtin.file:
-    path: "{{ rsync_backup_scripts_path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Git checkout scripts to scripts directory.
+- name: Git checkout common repo.
   ansible.builtin.git:
     repo: "{{ rsync_backup_scripts_repo }}"
     dest: "{{ rsync_backup_scripts_path }}"
-    version: main
+    version: "{{ rsync_backup_scripts_version }}"
     force: true
-  register: download_scripts
+  register: download_common
   retries: 5
   delay: 10
-  until: download_scripts is succeeded
+  until: download_common is succeeded
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ rsync_backup_scripts_path }}/.env"
+    path: "{{ rsync_backup_scripts_path }}/{{ rsync_backup_scripts_subdir }}/.env"
     marker: "# {mark} rsync_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -95,5 +87,5 @@
     minute: "{{ rsync_backup_minute }}"
     hour: "{{ rsync_backup_hour }}"
     day: "{{ rsync_backup_day }}"
-    job: "bash {{ rsync_backup_scripts_path }}/rsync_backup.sh{{ backup_directories_string }}"
+    job: "bash {{ rsync_backup_scripts_path }}/{{ rsync_backup_scripts_subdir }}/rsync_backup.sh{{ backup_directories_string }}"
   when: rsync_backup_paths | length > 0

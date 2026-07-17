@@ -45,28 +45,20 @@
     group: root
     mode: '0755'
 
-- name: Create scripts directory if it does not exist.
-  ansible.builtin.file:
-    path: "{{ mirror_backup_scripts_path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Git checkout scripts to scripts directory.
+- name: Git checkout common repo.
   ansible.builtin.git:
     repo: "{{ mirror_backup_scripts_repo }}"
     dest: "{{ mirror_backup_scripts_path }}"
-    version: main
+    version: "{{ mirror_backup_scripts_version }}"
     force: true
-  register: download_scripts
+  register: download_common
   retries: 5
   delay: 10
-  until: download_scripts is succeeded
+  until: download_common is succeeded
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ mirror_backup_scripts_path }}/.env"
+    path: "{{ mirror_backup_scripts_path }}/{{ mirror_backup_scripts_subdir }}/.env"
     marker: "# {mark} mirror_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -84,7 +76,7 @@
     hour: "{{ mirror_backup_hour }}"
     day: "{{ mirror_backup_day }}"
     job: >
-      bash {{ mirror_backup_scripts_path }}/mirror_backup.sh {{ item.path }}
+      bash {{ mirror_backup_scripts_path }}/{{ mirror_backup_scripts_subdir }}/mirror_backup.sh {{ item.path }}
       {{ '-d' if not item.stop_docker | default(false) }}
   when: mirror_backup_paths | length > 0
   loop: "{{ mirror_backup_paths }}"

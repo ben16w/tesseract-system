@@ -44,28 +44,20 @@
     group: root
     mode: '0755'
 
-- name: Create scripts directory if it does not exist.
-  ansible.builtin.file:
-    path: "{{ local_backup_scripts_path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Git checkout scripts to scripts directory.
+- name: Git checkout common repo.
   ansible.builtin.git:
     repo: "{{ local_backup_scripts_repo }}"
     dest: "{{ local_backup_scripts_path }}"
-    version: main
+    version: "{{ local_backup_scripts_version }}"
     force: true
-  register: download_scripts
+  register: download_common
   retries: 5
   delay: 10
-  until: download_scripts is succeeded
+  until: download_common is succeeded
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ local_backup_scripts_path }}/.env"
+    path: "{{ local_backup_scripts_path }}/{{ local_backup_scripts_subdir }}/.env"
     marker: "# {mark} local_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -97,5 +89,5 @@
     minute: "{{ local_backup_minute }}"
     hour: "{{ local_backup_hour }}"
     day: "{{ local_backup_day }}"
-    job: "bash {{ local_backup_scripts_path }}/local_backup.sh {{ backup_directories_string }}"
+    job: "bash {{ local_backup_scripts_path }}/{{ local_backup_scripts_subdir }}/local_backup.sh {{ backup_directories_string }}"
   when: local_backup_paths | length > 0

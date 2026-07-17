@@ -1,8 +1,9 @@
 ---
 
-provision_scripts_path: /opt/tesseract/scripts
-
-provision_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+provision_scripts_repo: https://github.com/ben16w/tesseract-common.git
+provision_scripts_version: main
+provision_scripts_path: /opt/common
+provision_scripts_subdir: scripts
 
 provision_volumes: []
   # - volume_file: "/path/to/file.image"

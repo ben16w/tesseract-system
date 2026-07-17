@@ -1,9 +1,11 @@
 ---
 
 kopia_backup_log_file: /var/log/tesseract.log
-kopia_backup_scripts_path: /opt/tesseract/scripts
 
-kopia_backup_scripts_repo: https://github.com/ben16w/tesseract-scripts.git
+kopia_backup_scripts_repo: https://github.com/ben16w/tesseract-common.git
+kopia_backup_scripts_version: main
+kopia_backup_scripts_path: /opt/common
+kopia_backup_scripts_subdir: scripts
 
 tesseract_email_host: ~
 tesseract_email_port: ~

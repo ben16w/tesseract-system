@@ -66,28 +66,20 @@
       from "{{ tesseract_email_username }}"
       password "{{ tesseract_email_password }}"
 
-- name: Create scripts directory if it does not exist.
-  ansible.builtin.file:
-    path: "{{ kopia_backup_scripts_path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Git checkout scripts to scripts directory.
+- name: Git checkout common repo.
   ansible.builtin.git:
     repo: "{{ kopia_backup_scripts_repo }}"
     dest: "{{ kopia_backup_scripts_path }}"
-    version: main
+    version: "{{ kopia_backup_scripts_version }}"
     force: true
-  register: download_scripts
+  register: download_common
   retries: 5
   delay: 10
-  until: download_scripts is succeeded
+  until: download_common is succeeded
 
 - name: Write .env file.
   ansible.builtin.blockinfile:
-    path: "{{ kopia_backup_scripts_path }}/.env"
+    path: "{{ kopia_backup_scripts_path }}/{{ kopia_backup_scripts_subdir }}/.env"
     marker: "# {mark} kopia_backup ANSIBLE MANAGED BLOCK"
     create: true
     owner: root
@@ -165,5 +157,5 @@
     minute: "{{ kopia_backup_minute }}"
     hour: "{{ kopia_backup_hour }}"
     day: "{{ kopia_backup_day }}"
-    job: "bash {{ kopia_backup_scripts_path }}/kopia_backup.sh{{ kopia_backup_paths_string }}"
+    job: "bash {{ kopia_backup_scripts_path }}/{{ kopia_backup_scripts_subdir }}/kopia_backup.sh{{ kopia_backup_paths_string }}"
   when: kopia_backup_paths | length > 0
