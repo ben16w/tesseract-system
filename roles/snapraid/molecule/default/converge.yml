@@ -8,7 +8,7 @@
     tesseract_email_port: "465"
     tesseract_email_password: "password"
 
-    snapraid_version: "12.3"
+    snapraid_version: "14.9"
     snapraid_data_disks:
       - /mnt/disk1
       - /mnt/disk2

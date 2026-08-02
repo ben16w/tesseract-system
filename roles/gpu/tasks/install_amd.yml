@@ -5,6 +5,7 @@
     that:
       - gpu_amd_version_short is not none
       - gpu_amd_version_long is not none
+      - ansible_facts['distribution'] == 'Ubuntu' # ROCm does not support Debian for consumer GPUs
 
 - name: Install necessary Linux headers and modules.
   ansible.builtin.apt:

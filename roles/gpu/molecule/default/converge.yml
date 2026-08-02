@@ -3,7 +3,7 @@
   hosts: all
   vars:
     gpu_install_intel: true
-    gpu_install_amd: true
+    gpu_install_amd: false
     gpu_amd_version_short: "7.2.1"
     gpu_amd_version_long: "7.2.1.70201-1"
   roles:

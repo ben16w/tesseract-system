@@ -1,15 +1,20 @@
 ---
-
-- name: Install dirmngr for GPG key management.
+- name: Install python3-debian for deb822_repository.
   ansible.builtin.apt:
-    name: dirmngr
-    state: present
-
-- name: Add the kisak-mesa PPA repository.
-  ansible.builtin.apt_repository:
-    repo: ppa:kisak/kisak-mesa
+    name: python3-debian
     state: present
     update_cache: true
+
+- name: Add kisak-mesa PPA repository for Ubuntu.
+  when: ansible_facts['distribution'] == 'Ubuntu'
+  ansible.builtin.deb822_repository:
+    name: kisak-mesa
+    types: deb
+    uris: https://ppa.launchpadcontent.net/kisak/kisak-mesa/ubuntu
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: main
+    signed_by: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF63F0F2B90935439"
+    state: present
 
 - name: Install Mesa Vulkan drivers and related packages.
   ansible.builtin.apt:
@@ -18,6 +23,7 @@
       - vulkan-tools
       - mesa-utils
     state: present
+    update_cache: true
 
 - name: Install VA-API drivers for Intel.
   ansible.builtin.apt:

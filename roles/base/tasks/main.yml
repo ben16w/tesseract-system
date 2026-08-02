@@ -36,7 +36,7 @@
       - python3-setuptools
       - python3-pip
       - python3-passlib
-      - ntp
+      - systemd-timesyncd
       - net-tools
       - rsync
       - unzip
@@ -82,12 +82,17 @@
     generate_ssh_key: false
     password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
 
+- name: Check tesseract group membership.
+  ansible.builtin.command:
+    cmd: "id -nG {{ tesseract_username }}"
+  register: tesseract_groups
+  changed_when: false
+
 - name: Make sure tesseract is removed from sudoers.
+  when: "'sudo' in tesseract_groups.stdout.split()"
   ansible.builtin.command:
     cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
-  register: grp_change
-  failed_when: grp_change.rc not in [0, 6]
-  changed_when: grp_change.rc == 0
+  changed_when: true
 
 - name: Remove pi sudoers file found on RPi.
   notify: restart sshd

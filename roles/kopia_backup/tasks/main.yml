@@ -11,31 +11,21 @@
       - kopia_backup_bb_bucket is not none
       - kopia_backup_password is not none
 
-- name: Install gpg-agent.
-  ansible.builtin.package:
-    name: gpg-agent
+- name: Install python3-debian for deb822_repository.
+  ansible.builtin.apt:
+    name: python3-debian
     state: present
     update_cache: true
 
-- name: Ensure /etc/apt/keyrings directory exists.
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
-- name: Download Kopia signing key.
-  ansible.builtin.get_url:
-    url: https://kopia.io/signing-key
-    dest: /etc/apt/keyrings/kopia.asc
-    mode: '0644'
-
-- name: Add Kopia repository into sources list.
-  ansible.builtin.apt_repository:
-    repo: >-
-      deb [signed-by=/etc/apt/keyrings/kopia.asc]
-      http://packages.kopia.io/apt/ stable main
+- name: Add Kopia repository.
+  ansible.builtin.deb822_repository:
+    name: kopia
+    types: deb
+    uris: http://packages.kopia.io/apt/
+    suites: stable
+    components: main
+    signed_by: "https://kopia.io/signing-key"
     state: present
-    update_cache: true
 
 - name: Install Kopia and other required software.
   ansible.builtin.package:
@@ -45,6 +35,7 @@
       - msmtp
       - git
     state: present
+    update_cache: true
 
 - name: Add msmtp email global config.
   no_log: true

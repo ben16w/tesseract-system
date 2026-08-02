@@ -1,8 +1,9 @@
 ---
-- name: Update repositories cache and install cryptsetup and git.
+- name: Update repositories cache and install cryptsetup, e2fsprogs and git.
   ansible.builtin.apt:
     name:
       - cryptsetup
+      - e2fsprogs
       - git
     update_cache: true
 
