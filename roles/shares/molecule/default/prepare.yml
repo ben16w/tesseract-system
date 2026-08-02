@@ -1,0 +1,75 @@
+---
+- name: Prepare
+  hosts: all
+  vars:
+    tesseract_username: tesseract
+    tesseract_samba_password: password
+    shares_root: /srv/samba
+  tasks:
+    - name: Update packages and install samba.
+      ansible.builtin.package:
+        name:
+          - dbus
+          - samba
+          - samba-common-bin
+        state: present
+        update_cache: true
+
+    - name: Start dbus.
+      ansible.builtin.service:
+        name: dbus
+        state: started
+        enabled: true
+
+    - name: Ensure tesseract user exists.
+      ansible.builtin.user:
+        name: '{{ tesseract_username }}'
+
+    - name: Create Samba share directory.
+      ansible.builtin.file:
+        path: '{{ shares_root }}/public'
+        state: directory
+        owner: '{{ tesseract_username }}'
+        group: '{{ tesseract_username }}'
+        mode: '0775'
+
+    - name: Seed Samba share with a test file.
+      ansible.builtin.copy:
+        dest: '{{ shares_root }}/public/hello.txt'
+        content: |
+          hello from share
+        owner: '{{ tesseract_username }}'
+        group: '{{ tesseract_username }}'
+        mode: '0644'
+
+    - name: Write Samba configuration for the local test share.
+      ansible.builtin.copy:
+        dest: /etc/samba/smb.conf
+        mode: '0644'
+        content: |
+          [global]
+            server role = standalone server
+            map to guest = Never
+            security = user
+            smb ports = 445
+            disable netbios = yes
+          [public]
+            path = {{ shares_root }}/public
+            valid users = {{ tesseract_username }}
+            read only = no
+            browsable = yes
+
+    - name: Create Samba user for the test share.
+      ansible.builtin.shell: |
+        printf '%s\n%s\n' '{{ tesseract_samba_password }}' '{{ tesseract_samba_password }}' \
+          | smbpasswd -s -a {{ tesseract_username }}
+      args:
+        executable: /bin/bash
+      no_log: true
+      changed_when: true
+
+    - name: Start smbd.
+      ansible.builtin.service:
+        name: smbd
+        state: started
+        enabled: true

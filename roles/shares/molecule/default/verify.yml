@@ -1,6 +1,35 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
+  vars:
+    shares_path: /media/shares
   tasks:
+    - name: Check autofs service is running.
+      ansible.builtin.systemd:
+        name: autofs
+      register: autofs_service
+      failed_when:
+        - autofs_service.failed
+        - autofs_service.status.ActiveState != 'active'
+
+    - name: Read mounted file from the Samba share.
+      ansible.builtin.command:
+        cmd: cat {{ shares_path }}/public/hello.txt
+      register: share_file
+      changed_when: false
+
+    - name: Assert the Samba share was mounted through autofs.
+      ansible.builtin.assert:
+        that:
+          - share_file.stdout | trim == 'hello from share'
+
+    - name: Read autofs map.
+      ansible.builtin.slurp:
+        path: /etc/auto.tesseract
+      register: autofs_map
+
+    - name: Assert the autofs map contains the public share.
+      ansible.builtin.assert:
+        that:
+          - "'public' in (autofs_map.content | b64decode)"
+          - "'://127.0.0.1/public' in (autofs_map.content | b64decode)"

@@ -1,6 +1,36 @@
 ---
 - name: Verify
   hosts: all
-  vars_files:
-    - ../../defaults/main.yml
   tasks:
+    - name: Check Kopia is installed.
+      ansible.builtin.command:
+        cmd: kopia --version
+      register: kopia_version
+      changed_when: false
+
+    - name: Assert Kopia reported a version.
+      ansible.builtin.assert:
+        that:
+          - "'kopia' in (kopia_version.stdout | lower)"
+
+    - name: Check checked out backup scripts environment file.
+      ansible.builtin.slurp:
+        path: /opt/common/scripts/.env
+      register: kopia_env
+
+    - name: Assert backup scripts environment contains expected settings.
+      ansible.builtin.assert:
+        that:
+          - '"EMAIL_USERNAME=\"email@email.com\"" in (kopia_env.content | b64decode)'
+          - '"KOPIA_BACKUP_LOG_DIR=\"/var/log/kopia/\"" in (kopia_env.content | b64decode)'
+          - '"KOPIA_BACKUP_VERIFY_ENABLED=\"True\"" in (kopia_env.content | b64decode)'
+
+    - name: Check Kopia signing key exists.
+      ansible.builtin.stat:
+        path: /etc/apt/keyrings/kopia.asc
+      register: kopia_key
+
+    - name: Assert Kopia signing key exists.
+      ansible.builtin.assert:
+        that:
+          - kopia_key.stat.exists

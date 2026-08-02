@@ -5,5 +5,11 @@
     tesseract_username: tesseract
     tesseract_samba_password: password
     samba_path: /media/storage
+  pre_tasks:
+    - name: Create samba share directory.
+      ansible.builtin.file:
+        path: /media/storage/public
+        state: directory
+        mode: '0755'
   roles:
     - role: tesseract.system.samba
