@@ -1,8 +1,9 @@
 ---
 - name: Verify
   hosts: all
-  vars:
-    expected_mergerfs_version: '2.42.0'
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   tasks:
     - name: Check mergerfs is installed.
       ansible.builtin.command:

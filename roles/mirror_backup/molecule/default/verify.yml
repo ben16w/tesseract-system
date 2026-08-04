@@ -4,6 +4,7 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
 
     - name: Ensire directory /tmp/data exists.

@@ -1,10 +1,9 @@
 ---
 - name: Converge
   hosts: all
-  vars:
-    tesseract_username: tesseract
-    tesseract_samba_password: password
-    samba_path: /media/storage
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   pre_tasks:
     - name: Create samba share directory.
       ansible.builtin.file:

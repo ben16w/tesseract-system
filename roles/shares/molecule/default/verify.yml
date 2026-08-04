@@ -1,8 +1,9 @@
 ---
 - name: Verify
   hosts: all
-  vars:
-    shares_path: /media/shares
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   tasks:
     - name: Check autofs service is running.
       ansible.builtin.systemd:

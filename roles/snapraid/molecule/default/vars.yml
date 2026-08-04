@@ -1,0 +1,16 @@
+---
+tesseract_hostname: instance
+tesseract_email_username: "email@email.com"
+tesseract_email_host: "email.com"
+tesseract_email_port: "465"
+tesseract_email_password: "password"
+
+snapraid_version: "14.9"
+snapraid_data_disks:
+  - /mnt/disk1
+  - /mnt/disk2
+  - /mnt/disk3
+snapraid_parity_disks:
+  - /mnt/parity1
+  - /mnt/parity2
+  - /mnt/parity3

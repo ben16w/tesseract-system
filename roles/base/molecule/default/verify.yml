@@ -3,6 +3,7 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
     - name: Look up the admin and tesseract users.
       ansible.builtin.getent:

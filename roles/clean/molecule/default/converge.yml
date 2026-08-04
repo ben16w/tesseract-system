@@ -1,7 +1,7 @@
 ---
 - name: Converge
   hosts: all
-#  vars:
-
+  vars_files:
+    - ../../defaults/main.yml
   roles:
     - role: tesseract.system.clean

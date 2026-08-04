@@ -1,11 +1,8 @@
 ---
 - name: Converge
   hosts: all
-  vars:
-    provision_volumes:
-      - volume_file: "/tmp/file.image"
-        generate_data: true
-        size: 1G
-        password: "password"
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   roles:
     - role: tesseract.system.provision
