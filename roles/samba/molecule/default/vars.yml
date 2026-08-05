@@ -1,4 +1,4 @@
 ---
 tesseract_username: tesseract
-tesseract_samba_password: password
+samba_password: password
 samba_path: /media/storage

@@ -3,7 +3,7 @@
   hosts: all
   vars:
     tesseract_username: tesseract
-    tesseract_samba_password: password
+    shares_password: password
     shares_root: /srv/samba
   tasks:
     - name: Update packages and install samba.
@@ -61,7 +61,7 @@
 
     - name: Create Samba user for the test share.
       ansible.builtin.shell: |
-        printf '%s\n%s\n' '{{ tesseract_samba_password }}' '{{ tesseract_samba_password }}' \
+        printf '%s\n%s\n' '{{ shares_password }}' '{{ shares_password }}' \
           | smbpasswd -s -a {{ tesseract_username }}
       args:
         executable: /bin/bash

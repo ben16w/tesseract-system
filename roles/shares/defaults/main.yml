@@ -2,9 +2,8 @@
 
 tesseract_username: ~
 
-shares: []
+shares_mounts: []
 
 shares_path: ~
-
 shares_host: ~
-tesseract_samba_password: ~
+shares_password: ~

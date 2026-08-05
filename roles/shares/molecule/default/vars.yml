@@ -2,7 +2,7 @@
 tesseract_username: tesseract
 shares_host: 127.0.0.1
 shares_path: /media/shares
-tesseract_samba_password: password
-shares:
+shares_password: password
+shares_mounts:
   - name: public
     read_only: false

@@ -5,7 +5,7 @@
     that:
       - shares_host is not none
       - shares_path is not none
-      - tesseract_samba_password is not none
+      - shares_password is not none
       - tesseract_username is not none
 
 - name: Install samba software.
@@ -28,7 +28,7 @@
 
 - name: Generate autofs config for samba mounts.
   notify: restart autofs
-  when: shares | length > 0
+  when: shares_mounts | length > 0
   ansible.builtin.template:
     src: templates/auto.tesseract.j2
     dest: /etc/auto.tesseract
@@ -42,7 +42,7 @@
     path: /etc/auto.master
     search_string: "tesseract"
     line: "/- /etc/auto.tesseract --timeout 60"
-  when: shares | length > 0
+  when: shares_mounts | length > 0
 
 - name: Set smbcredentials file with samba username and password.
   notify: restart autofs
@@ -55,10 +55,10 @@
     group: root
     block: |
       username={{ tesseract_username }}
-      password={{ tesseract_samba_password }}
+      password={{ shares_password }}
 
 # - name: Change share ownership to tesseract user.
-#   loop: "{{ shares }}"
+#   loop: "{{ shares_mounts }}"
 #   ansible.builtin.file:
 #     path: "{{ samba_path }}/{{ item.name }}"
 #     state: directory

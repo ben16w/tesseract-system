@@ -14,4 +14,4 @@
     - name: Assert mergerfs reported the expected version.
       ansible.builtin.assert:
         that:
-          - expected_mergerfs_version in mergerfs_version_output.stdout
+          - mergerfs_version in mergerfs_version_output.stdout

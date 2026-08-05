@@ -9,9 +9,7 @@
       ansible.builtin.systemd:
         name: autofs
       register: autofs_service
-      failed_when:
-        - autofs_service.failed
-        - autofs_service.status.ActiveState != 'active'
+      failed_when: autofs_service.status.ActiveState != 'active'
 
     - name: Read mounted file from the Samba share.
       ansible.builtin.command:

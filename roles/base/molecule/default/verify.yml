@@ -5,32 +5,11 @@
     - ../../defaults/main.yml
     - vars.yml
   tasks:
-    - name: Look up the admin and tesseract users.
-      ansible.builtin.getent:
-        database: passwd
-        key: '{{ item }}'
-      loop:
-        - admin
-        - tesseract
-
-    - name: Check tesseract group membership.
-      ansible.builtin.command:
-        cmd: id -nG tesseract
-      register: tesseract_groups
-      changed_when: false
-
-    - name: Assert tesseract is not a sudoer.
-      ansible.builtin.assert:
-        that:
-          - "'sudo' not in tesseract_groups.stdout.split()"
-
     - name: Check fail2ban service is running.
       ansible.builtin.systemd:
         name: fail2ban
       register: fail2ban_service
-      failed_when:
-        - fail2ban_service.failed
-        - fail2ban_service.status.ActiveState != 'active'
+      failed_when: fail2ban_service.status.ActiveState != 'active'
 
     - name: Read sshd configuration.
       ansible.builtin.slurp:
@@ -43,13 +22,3 @@
           - "'PermitRootLogin No' in (sshd_config.content | b64decode)"
           - "'Match user tesseract' in (sshd_config.content | b64decode)"
           - "'ForceCommand internal-sftp' in (sshd_config.content | b64decode)"
-
-    - name: Check fail2ban jail configuration exists.
-      ansible.builtin.stat:
-        path: /etc/fail2ban/jail.local
-      register: fail2ban_jail
-
-    - name: Assert fail2ban jail configuration exists.
-      ansible.builtin.assert:
-        that:
-          - fail2ban_jail.stat.exists

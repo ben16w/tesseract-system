@@ -1,0 +1,9 @@
+---
+- name: Prepare
+  hosts: all
+  tasks:
+    - name: Create samba share directory.
+      ansible.builtin.file:
+        path: /media/storage/public
+        state: directory
+        mode: '0755'

@@ -9,9 +9,7 @@
       ansible.builtin.systemd:
         name: smbd
       register: smbd_service
-      failed_when:
-        - smbd_service.failed
-        - smbd_service.status.ActiveState != 'active'
+      failed_when: smbd_service.status.ActiveState != 'active'
 
     - name: Check nmbd state.
       ansible.builtin.command:
