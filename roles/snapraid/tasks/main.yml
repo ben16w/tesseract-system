@@ -128,11 +128,14 @@
         state: directory
         mode: '0755'
 
-    - name: Add cron job for snapraid-runner.
-      ansible.builtin.cron:
-        name: "Snapraid runner."
-        minute: "0"
-        hour: "{{ snapraid_cron_hour }}"
-        job: >
-          python3 /opt/snapraid-runner/snapraid-runner.py
-          --conf /opt/snapraid-runner/snapraid-runner.conf
+
+- name: Ensure snapraid-runner cron job is present or absent.
+  ansible.builtin.cron:
+    name: "Snapraid runner."
+    minute: "0"
+    hour: "{{ snapraid_cron_hour }}"
+    job: >
+      python3 /opt/snapraid-runner/snapraid-runner.py
+      --conf /opt/snapraid-runner/snapraid-runner.conf
+    state: "{{ 'present' if snapraid_data_disks | length > 0 and snapraid_parity_disks | length > 0 else 'absent' }}"
+

@@ -142,11 +142,11 @@
   loop: "{{ kopia_backup_paths }}"
   when: kopia_backup_paths | length > 0
 
-- name: Add paths for backup to cron.
+- name: Ensure Kopia backup cron job is present or absent.
   ansible.builtin.cron:
     name: "Kopia backup."
     minute: "{{ kopia_backup_minute }}"
     hour: "{{ kopia_backup_hour }}"
     day: "{{ kopia_backup_day }}"
-    job: "bash {{ kopia_backup_scripts_path }}/{{ kopia_backup_scripts_subdir }}/kopia_backup.sh{{ kopia_backup_paths_string }}"
-  when: kopia_backup_paths | length > 0
+    job: "bash {{ kopia_backup_scripts_path }}/{{ kopia_backup_scripts_subdir }}/kopia_backup.sh{{ kopia_backup_paths_string | default('') }}"
+    state: "{{ 'present' if kopia_backup_paths | length > 0 else 'absent' }}"
