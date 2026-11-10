@@ -21,10 +21,26 @@
   failed_when: false
   changed_when: false
 
-- name: Download and install ROCm if required.
+- name: Download and install or upgrade the AMD stack.
   when: amd_sources_version.rc != 0
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    NEEDRESTART_MODE: a
+    NEEDRESTART_SUSPEND: "1"
   block:
-    - name: Download the AMDGPU driver package.
+    - name: Check whether an existing AMD stack can be uninstalled.
+      ansible.builtin.stat:
+        path: /usr/bin/amdgpu-uninstall
+      register: gpu_amd_uninstall
+
+    - name: Uninstall the existing AMD stack before upgrading.
+      ansible.builtin.command:
+        cmd: amdgpu-uninstall -y
+      when: gpu_amd_uninstall.stat.exists
+      changed_when: true
+      failed_when: false
+
+    - name: Download the AMDGPU installer package.
       ansible.builtin.get_url:
         url: "https://repo.radeon.com/amdgpu-install/\
           {{ gpu_amd_version_short }}/ubuntu/\
@@ -33,22 +49,64 @@
         dest: /tmp/amdgpu-install.deb
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
         force: true
       register: download_driver
       retries: 5
       delay: 10
       until: download_driver is succeeded
 
-    - name: Install the AMDGPU driver package.
+    - name: Install the AMDGPU installer package.
       ansible.builtin.apt:
         deb: /tmp/amdgpu-install.deb
+        dpkg_options:
+          - force-confdef
+          - force-confnew
 
-    - name: Run amdgpu-install script to finalize installation.
+    - name: Ensure AMD apt source lists match the installed installer templates.
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - src: /usr/share/amdgpu-install/orig/amdgpu.list
+          dest: /etc/apt/sources.list.d/amdgpu.list
+        - src: /usr/share/amdgpu-install/orig/rocm.list
+          dest: /etc/apt/sources.list.d/rocm.list
+
+    - name: Update apt cache after refreshing AMD repositories.
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install AMD graphics and ROCm userspace with DKMS.
       ansible.builtin.command:
-        cmd: "amdgpu-install --usecase=graphics,rocm -y"
+        cmd: amdgpu-install --usecase=graphics,rocm -y
       changed_when: true
       tags: notest
+
+- name: Check that amdgpu DKMS is installed for the running kernel.
+  ansible.builtin.command:
+    cmd: dkms status -m amdgpu -k {{ ansible_facts['kernel'] }}
+  register: gpu_amd_dkms_status
+  changed_when: false
+  failed_when: false
+  tags: notest
+
+- name: Assert amdgpu DKMS is installed for the running kernel.
+  ansible.builtin.assert:
+    that:
+      - gpu_amd_dkms_status.rc == 0
+      - "'installed' in gpu_amd_dkms_status.stdout"
+    fail_msg: >-
+      amdgpu DKMS is not installed for kernel {{ ansible_facts['kernel'] }}.
+      Status: {{ gpu_amd_dkms_status.stdout | default('(empty)') }}
+      {{ gpu_amd_dkms_status.stderr | default('') }}
+    success_msg: >-
+      amdgpu DKMS is installed for kernel {{ ansible_facts['kernel'] }}.
+  tags: notest
 
 - name: Install VA-API drivers for AMD.
   ansible.builtin.apt:

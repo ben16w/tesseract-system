@@ -82,6 +82,13 @@
     generate_ssh_key: false
     password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
 
+- name: Add admin user to tesseract group.
+  ansible.builtin.user:
+    name: "{{ tesseract_admin_username }}"
+    groups:
+      - "{{ tesseract_username }}"
+    append: true
+
 - name: Check tesseract group membership.
   ansible.builtin.command:
     cmd: "id -nG {{ tesseract_username }}"
