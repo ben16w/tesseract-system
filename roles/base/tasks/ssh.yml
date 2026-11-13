@@ -1,11 +1,27 @@
 ---
 
-- name: Disable root login.
+- name: Configure SSH hardening drop-in.
+  notify: restart sshd
+  ansible.builtin.template:
+    src: templates/50-tesseract-sshd.conf.j2
+    dest: /etc/ssh/sshd_config.d/50-tesseract.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Disable X11 forwarding in sshd_config.
   notify: restart sshd
   ansible.builtin.lineinfile:
-    dest: /etc/ssh/sshd_config
+    path: /etc/ssh/sshd_config
+    regexp: '^X11Forwarding'
+    line: 'X11Forwarding no'
+
+- name: Remove legacy PermitRootLogin from sshd_config.
+  notify: restart sshd
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
     regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin No'
+    state: absent
 
 - name: Add SFTP server config.
   no_log: true
@@ -22,3 +38,8 @@
         X11Forwarding no
         AllowTcpForwarding no
         ForceCommand internal-sftp
+
+- name: Validate sshd configuration.
+  ansible.builtin.command:
+    cmd: sshd -t
+  changed_when: false

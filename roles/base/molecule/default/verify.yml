@@ -44,3 +44,25 @@
       ansible.builtin.assert:
         that:
           - base_nopasswd_sudoers_verify.files | length == 0
+
+    - name: Read SSH hardening drop-in.
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config.d/50-tesseract.conf
+      register: base_sshd_dropin
+
+    - name: Assert SSH drop-in disables root login and X11 forwarding.
+      ansible.builtin.assert:
+        that:
+          - "'PermitRootLogin no' in (base_sshd_dropin.content | b64decode)"
+          - "'X11Forwarding no' in (base_sshd_dropin.content | b64decode)"
+
+    - name: Read sshd_config X11 forwarding setting.
+      ansible.builtin.command:
+        cmd: grep -E '^X11Forwarding' /etc/ssh/sshd_config
+      register: base_sshd_x11
+      changed_when: false
+
+    - name: Assert sshd_config disables X11 forwarding.
+      ansible.builtin.assert:
+        that:
+          - base_sshd_x11.stdout == 'X11Forwarding no'
