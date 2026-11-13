@@ -44,8 +44,25 @@
     cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
   changed_when: true
 
-- name: Remove pi sudoers file found on RPi.
-  notify: restart sshd
+- name: Find passwordless sudoers drop-ins.
+  ansible.builtin.find:
+    paths: /etc/sudoers.d
+    patterns: '*nopasswd*'
+  register: base_nopasswd_sudoers
+
+- name: Remove passwordless sudoers drop-ins.
   ansible.builtin.file:
-    path: /etc/sudoers.d/010_pi-nopasswd
+    path: "{{ item.path }}"
     state: absent
+  loop: "{{ base_nopasswd_sudoers.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Require a password for sudo.
+  ansible.builtin.template:
+    src: templates/52tesseract-sudo.j2
+    dest: /etc/sudoers.d/52tesseract-sudo
+    owner: root
+    group: root
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s

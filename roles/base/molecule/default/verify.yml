@@ -31,3 +31,24 @@
       check_mode: true
       register: base_unattended_upgrades_svc
       failed_when: base_unattended_upgrades_svc is changed
+
+    - name: Read managed sudoers drop-in.
+      ansible.builtin.slurp:
+        src: /etc/sudoers.d/52tesseract-sudo
+      register: base_sudoers_dropin
+
+    - name: Assert sudo requires a password.
+      ansible.builtin.assert:
+        that:
+          - "'Defaults authenticate' in (base_sudoers_dropin.content | b64decode)"
+
+    - name: Find leftover passwordless sudoers drop-ins.
+      ansible.builtin.find:
+        paths: /etc/sudoers.d
+        patterns: '*nopasswd*'
+      register: base_nopasswd_sudoers_verify
+
+    - name: Assert no passwordless sudoers drop-ins remain.
+      ansible.builtin.assert:
+        that:
+          - base_nopasswd_sudoers_verify.files | length == 0
