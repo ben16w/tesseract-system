@@ -4,14 +4,6 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
-    - name: Check unattended-upgrades package is installed.
-      ansible.builtin.package:
-        name: unattended-upgrades
-        state: present
-      check_mode: true
-      register: base_unattended_upgrades_pkg
-      failed_when: base_unattended_upgrades_pkg is changed
-
     - name: Read unattended-upgrades apt config.
       ansible.builtin.command:
         cmd: apt-config dump
