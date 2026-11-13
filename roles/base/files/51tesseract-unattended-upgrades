@@ -1,2 +1,0 @@
-// Managed by tesseract.system.base — keep hosts online after upgrades.
-Unattended-Upgrade::Automatic-Reboot "false";

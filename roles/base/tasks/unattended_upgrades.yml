@@ -13,9 +13,9 @@
     group: root
     mode: '0644'
 
-- name: Disable unattended-upgrades automatic reboot.
-  ansible.builtin.copy:
-    src: files/51tesseract-unattended-upgrades
+- name: Configure unattended-upgrades reboot policy.
+  ansible.builtin.template:
+    src: templates/51tesseract-unattended-upgrades.j2
     dest: /etc/apt/apt.conf.d/51tesseract-unattended-upgrades
     owner: root
     group: root
