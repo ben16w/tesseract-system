@@ -1,0 +1,24 @@
+---
+
+- name: Disable root login.
+  notify: restart sshd
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin No'
+
+- name: Add SFTP server config.
+  no_log: true
+  notify: restart sshd
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+    block: |
+      Match user {{ tesseract_username }}
+        ChrootDirectory /media
+        X11Forwarding no
+        AllowTcpForwarding no
+        ForceCommand internal-sftp

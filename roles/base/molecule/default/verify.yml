@@ -4,3 +4,30 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+    - name: Check unattended-upgrades package is installed.
+      ansible.builtin.package:
+        name: unattended-upgrades
+        state: present
+      check_mode: true
+      register: base_unattended_upgrades_pkg
+      failed_when: base_unattended_upgrades_pkg is changed
+
+    - name: Read unattended-upgrades apt config.
+      ansible.builtin.command:
+        cmd: apt-config dump
+      register: base_apt_config
+      changed_when: false
+
+    - name: Assert unattended-upgrades is enabled without automatic reboot.
+      ansible.builtin.assert:
+        that:
+          - "'APT::Periodic::Unattended-Upgrade \"1\"' in base_apt_config.stdout"
+          - "'Unattended-Upgrade::Automatic-Reboot \"false\"' in base_apt_config.stdout"
+
+    - name: Check unattended-upgrades service is enabled.
+      ansible.builtin.service:
+        name: unattended-upgrades
+        enabled: true
+      check_mode: true
+      register: base_unattended_upgrades_svc
+      failed_when: base_unattended_upgrades_svc is changed

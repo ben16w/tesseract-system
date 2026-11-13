@@ -7,3 +7,6 @@ tesseract_username: ~
 tesseract_password: ~
 
 tesseract_hostname: ~
+
+# Install security updates automatically. Never auto-reboot.
+base_unattended_upgrades_enabled: true

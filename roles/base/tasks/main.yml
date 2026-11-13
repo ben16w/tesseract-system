@@ -21,8 +21,6 @@
     group: root
     mode: '0644'
 
-# Set date and time?
-
 - name: Update and upgrade OS.
   ansible.builtin.apt:
     upgrade: full
@@ -56,98 +54,14 @@
     group: root
     mode: '0644'
 
-- name: Set admin user.
-  ansible.builtin.user:
-    name: "{{ tesseract_admin_username }}"
-    comment: "admin user"
-    shell: /bin/bash
-#   group: admin
-    groups:
-      - sudo
-    append: true
-    generate_ssh_key: true
-    password: "{{ tesseract_admin_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
+- name: Configure users.
+  ansible.builtin.import_tasks: users.yml
 
-- name: Ensure tesseract group exists.
-  ansible.builtin.group:
-    name: "{{ tesseract_username }}"
-    state: present
+- name: Configure SSH.
+  ansible.builtin.import_tasks: ssh.yml
 
-- name: Set tesseract user.
-  ansible.builtin.user:
-    name: "{{ tesseract_username }}"
-    comment: "tesseract user"
-    shell: /bin/bash
-    group: tesseract
-    generate_ssh_key: false
-    password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
+- name: Configure fail2ban.
+  ansible.builtin.import_tasks: fail2ban.yml
 
-- name: Add admin user to tesseract group.
-  ansible.builtin.user:
-    name: "{{ tesseract_admin_username }}"
-    groups:
-      - "{{ tesseract_username }}"
-    append: true
-
-- name: Check tesseract group membership.
-  ansible.builtin.command:
-    cmd: "id -nG {{ tesseract_username }}"
-  register: tesseract_groups
-  changed_when: false
-
-- name: Make sure tesseract is removed from sudoers.
-  when: "'sudo' in tesseract_groups.stdout.split()"
-  ansible.builtin.command:
-    cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
-  changed_when: true
-
-- name: Remove pi sudoers file found on RPi.
-  notify: restart sshd
-  ansible.builtin.file:
-    path: /etc/sudoers.d/010_pi-nopasswd
-    state: absent
-
-- name: Disable root login.
-  notify: restart sshd
-  ansible.builtin.lineinfile:
-    dest: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin No'
-
-- name: Add SFTP server config.
-  no_log: true
-  notify: restart sshd
-  ansible.builtin.blockinfile:
-    path: /etc/ssh/sshd_config
-    create: true
-    owner: root
-    group: root
-    mode: '0644'
-    block: |
-      Match user {{ tesseract_username }}
-        ChrootDirectory /media
-        X11Forwarding no
-        AllowTcpForwarding no
-        ForceCommand internal-sftp
-
-
-# The stuff below should be in seperate roles.
-
-- name: Install fail2ban.
-  ansible.builtin.apt:
-    pkg:
-      - fail2ban
-
-- name: Template fail2ban configuration.
-  ansible.builtin.template:
-    src: templates/jail.local.j2
-    dest: /etc/fail2ban/jail.local
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Make sure fail2ban is enabled and started.
-  ansible.builtin.service:
-    name: fail2ban
-    state: started
-    enabled: true
+- name: Configure unattended-upgrades.
+  ansible.builtin.import_tasks: unattended_upgrades.yml
