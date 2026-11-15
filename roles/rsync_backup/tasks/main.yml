@@ -81,11 +81,18 @@
   loop: "{{ rsync_backup_paths }}"
   when: rsync_backup_paths | length > 0
 
-- name: Add cron job for rsync backup script.
+- name: Ensure cron job for rsync backup script is present.
+  when: rsync_backup_paths | length > 0
   ansible.builtin.cron:
     name: "Rsync backup."
     minute: "{{ rsync_backup_minute }}"
     hour: "{{ rsync_backup_hour }}"
     day: "{{ rsync_backup_day }}"
     job: "bash {{ rsync_backup_scripts_path }}/{{ rsync_backup_scripts_subdir }}/rsync_backup.sh{{ backup_directories_string }}"
-  when: rsync_backup_paths | length > 0
+    state: present
+
+- name: Ensure cron job for rsync backup script is absent.
+  when: rsync_backup_paths | length == 0
+  ansible.builtin.cron:
+    name: "Rsync backup."
+    state: absent

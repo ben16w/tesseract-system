@@ -83,11 +83,18 @@
   loop: "{{ local_backup_paths }}"
   when: local_backup_paths | length > 0
 
-- name: Add cron job for local backup script.
+- name: Ensure cron job for local backup script is present.
+  when: local_backup_paths | length > 0
   ansible.builtin.cron:
     name: "Local backup."
     minute: "{{ local_backup_minute }}"
     hour: "{{ local_backup_hour }}"
     day: "{{ local_backup_day }}"
     job: "bash {{ local_backup_scripts_path }}/{{ local_backup_scripts_subdir }}/local_backup.sh {{ backup_directories_string }}"
-  when: local_backup_paths | length > 0
+    state: present
+
+- name: Ensure cron job for local backup script is absent.
+  when: local_backup_paths | length == 0
+  ansible.builtin.cron:
+    name: "Local backup."
+    state: absent
