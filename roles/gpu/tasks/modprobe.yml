@@ -1,0 +1,20 @@
+---
+
+- name: Configure amdgpu modprobe power-management options.
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/amdgpu-disable-pm.conf
+    content: |
+      # Disable AMD dGPU runtime PM (BACO) and driver ASPM.
+      options amdgpu runpm=0 aspm=0
+    owner: root
+    group: root
+    mode: "0644"
+  when: gpu_amd_disable_pm | bool
+  notify: Update initramfs
+
+- name: Remove amdgpu modprobe power-management options.
+  ansible.builtin.file:
+    path: /etc/modprobe.d/amdgpu-disable-pm.conf
+    state: absent
+  when: not (gpu_amd_disable_pm | bool)
+  notify: Update initramfs

@@ -9,3 +9,6 @@ gpu_amd_version_short: ~
 # Example: gpu_amd_version_short: "7.2.1"
 gpu_amd_version_long: ~
 # Example: gpu_amd_version_long: "7.2.1.70201-1"
+
+# When true, sets amdgpu runpm=0 and aspm=0 via modprobe.d (reboot required).
+gpu_amd_disable_pm: false
