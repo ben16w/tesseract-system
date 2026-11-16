@@ -3,4 +3,15 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
+    - name: Check mergerfs is installed.
+      ansible.builtin.command:
+        cmd: mergerfs --version
+      register: mergerfs_version_output
+      changed_when: false
+
+    - name: Assert mergerfs reported the expected version.
+      ansible.builtin.assert:
+        that:
+          - mergerfs_version in mergerfs_version_output.stdout

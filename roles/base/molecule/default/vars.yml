@@ -1,0 +1,5 @@
+---
+tesseract_username: "tesseract"
+tesseract_password: "password"
+tesseract_hostname: "{{ ansible_facts['hostname'] }}"
+tesseract_admin_password: "password"

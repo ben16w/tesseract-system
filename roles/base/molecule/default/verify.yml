@@ -3,4 +3,22 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
+    - name: Check fail2ban service is running.
+      ansible.builtin.systemd:
+        name: fail2ban
+      register: fail2ban_service
+      failed_when: fail2ban_service.status.ActiveState != 'active'
+
+    - name: Read sshd configuration.
+      ansible.builtin.slurp:
+        path: /etc/ssh/sshd_config
+      register: sshd_config
+
+    - name: Assert sshd configuration contains the expected hardening.
+      ansible.builtin.assert:
+        that:
+          - "'PermitRootLogin No' in (sshd_config.content | b64decode)"
+          - "'Match user tesseract' in (sshd_config.content | b64decode)"
+          - "'ForceCommand internal-sftp' in (sshd_config.content | b64decode)"

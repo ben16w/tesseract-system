@@ -1,0 +1,9 @@
+---
+tesseract_email_username: "email@email.com"
+tesseract_email_host: "email.com"
+tesseract_email_port: "465"
+tesseract_email_password: "password"
+kopia_backup_bb_key_id: "key_id"
+kopia_backup_bb_key: "key"
+kopia_backup_bb_bucket: "bucket"
+kopia_backup_password: "password"

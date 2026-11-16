@@ -3,4 +3,21 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
+    - name: Check autofs service is running.
+      ansible.builtin.systemd:
+        name: autofs
+      register: autofs_service
+      failed_when: autofs_service.status.ActiveState != 'active'
+
+    - name: Read mounted file from the Samba share.
+      ansible.builtin.command:
+        cmd: cat {{ shares_path }}/public/hello.txt
+      register: share_file
+      changed_when: false
+
+    - name: Assert the Samba share was mounted through autofs.
+      ansible.builtin.assert:
+        that:
+          - share_file.stdout | trim == 'hello from share'

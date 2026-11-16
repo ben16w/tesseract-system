@@ -1,10 +1,8 @@
 ---
 - name: Converge
   hosts: all
-  vars:
-    tesseract_email_username: "email@email.com"
-    tesseract_email_host: "email.com"
-    tesseract_email_port: "465"
-    tesseract_email_password: "password"
+  vars_files:
+    - ../../defaults/main.yml
+    - vars.yml
   roles:
     - role: tesseract.system.rsync_backup

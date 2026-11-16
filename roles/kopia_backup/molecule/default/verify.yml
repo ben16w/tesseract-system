@@ -3,4 +3,15 @@
   hosts: all
   vars_files:
     - ../../defaults/main.yml
+    - vars.yml
   tasks:
+    - name: Check Kopia is installed.
+      ansible.builtin.command:
+        cmd: kopia --version
+      register: kopia_version
+      changed_when: false
+
+    - name: Assert Kopia reported a version.
+      ansible.builtin.assert:
+        that:
+          - "'kopia' in (kopia_version.stdout | lower)"
