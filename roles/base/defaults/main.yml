@@ -7,3 +7,16 @@ tesseract_username: ~
 tesseract_password: ~
 
 tesseract_hostname: ~
+
+base_unattended_upgrades_enabled: true
+base_unattended_upgrades_automatic_reboot: false
+
+base_timezone: Europe/London
+
+base_fail2ban_bantime: 1h
+base_fail2ban_findtime: 10m
+base_fail2ban_maxretry: 5
+base_fail2ban_ignoreip:
+  - 127.0.0.1/8
+  - ::1
+  - 100.64.0.0/10

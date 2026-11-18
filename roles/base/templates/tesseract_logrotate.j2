@@ -1,0 +1,13 @@
+# Managed by tesseract.system.base
+/var/log/tesseract.log {
+    daily
+    maxsize 100M
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    dateext
+    dateformat -%Y-%m-%d
+}

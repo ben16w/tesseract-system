@@ -1,0 +1,53 @@
+---
+
+- name: Ensure tesseract group exists.
+  ansible.builtin.group:
+    name: "{{ tesseract_username }}"
+    state: present
+
+- name: Set tesseract user.
+  ansible.builtin.user:
+    name: "{{ tesseract_username }}"
+    comment: "tesseract user"
+    shell: /bin/bash
+    group: "{{ tesseract_username }}"
+    generate_ssh_key: false
+    password: "{{ tesseract_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
+
+- name: Set admin user.
+  ansible.builtin.user:
+    name: "{{ tesseract_admin_username }}"
+    comment: "admin user"
+    shell: /bin/bash
+    groups:
+      - sudo
+      - "{{ tesseract_username }}"
+    append: true
+    generate_ssh_key: true
+    password: "{{ tesseract_admin_password | password_hash('sha512', 65534 | random(seed=tesseract_hostname) | string) }}"
+
+- name: Check tesseract group membership.
+  ansible.builtin.command:
+    cmd: "id -nG {{ tesseract_username }}"
+  register: tesseract_groups
+  changed_when: false
+
+- name: Make sure tesseract is removed from sudoers.
+  when: "'sudo' in tesseract_groups.stdout.split()"
+  ansible.builtin.command:
+    cmd: "/usr/sbin/deluser {{ tesseract_username }} sudo"
+  changed_when: true
+
+- name: Find passwordless sudoers drop-ins.
+  ansible.builtin.find:
+    paths: /etc/sudoers.d
+    patterns: '*nopasswd*'
+  register: base_nopasswd_sudoers
+
+- name: Remove passwordless sudoers drop-ins.
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ base_nopasswd_sudoers.files }}"
+  loop_control:
+    label: "{{ item.path }}"

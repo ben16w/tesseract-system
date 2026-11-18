@@ -18,3 +18,25 @@
         name: dbus
         state: started
         enabled: true
+
+    - name: Ensure systemd-timesyncd drop-in directory exists.
+      ansible.builtin.file:
+        path: /etc/systemd/system/systemd-timesyncd.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Allow systemd-timesyncd in the Molecule container.
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/systemd-timesyncd.service.d/molecule.conf
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Unit]
+          ConditionVirtualization=
+
+    - name: Reload systemd.
+      ansible.builtin.systemd:
+        daemon_reload: true

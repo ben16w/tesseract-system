@@ -1,0 +1,9 @@
+# Managed by tesseract.system.base
+PermitRootLogin no
+X11Forwarding no
+
+Match user {{ tesseract_username }}
+  ChrootDirectory /media
+  X11Forwarding no
+  AllowTcpForwarding no
+  ForceCommand internal-sftp

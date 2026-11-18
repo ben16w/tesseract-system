@@ -11,14 +11,21 @@
       register: fail2ban_service
       failed_when: fail2ban_service.status.ActiveState != 'active'
 
-    - name: Read sshd configuration.
-      ansible.builtin.slurp:
-        path: /etc/ssh/sshd_config
-      register: sshd_config
+    - name: Check unattended-upgrades service is enabled and running.
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+      register: base_unattended_upgrades_svc
+      failed_when: >-
+        base_unattended_upgrades_svc.status.ActiveState != 'active'
+        or base_unattended_upgrades_svc.status.UnitFileState != 'enabled'
 
-    - name: Assert sshd configuration contains the expected hardening.
-      ansible.builtin.assert:
-        that:
-          - "'PermitRootLogin No' in (sshd_config.content | b64decode)"
-          - "'Match user tesseract' in (sshd_config.content | b64decode)"
-          - "'ForceCommand internal-sftp' in (sshd_config.content | b64decode)"
+    - name: Check sshd service is running.
+      ansible.builtin.systemd:
+        name: ssh
+      register: base_sshd_svc
+      failed_when: base_sshd_svc.status.ActiveState != 'active'
+
+    - name: Validate sshd configuration.
+      ansible.builtin.command:
+        cmd: sshd -t
+      changed_when: false

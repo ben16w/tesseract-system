@@ -1,0 +1,14 @@
+---
+
+- name: Install logrotate.
+  ansible.builtin.apt:
+    name: logrotate
+    state: present
+
+- name: Deploy tesseract.log logrotate configuration.
+  ansible.builtin.template:
+    src: tesseract_logrotate.j2
+    dest: /etc/logrotate.d/tesseract
+    owner: root
+    group: root
+    mode: '0644'

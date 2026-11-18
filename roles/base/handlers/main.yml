@@ -5,3 +5,9 @@
   ansible.builtin.service:
     name: ssh
     state: restarted
+
+- name: Restart fail2ban.
+  listen: restart fail2ban
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
