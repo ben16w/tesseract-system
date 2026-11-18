@@ -18,7 +18,7 @@
 
 - name: Template autoshutdown script to scripts directory.
   ansible.builtin.template:
-    src: templates/autoshutdown.sh.j2
+    src: autoshutdown.sh.j2
     dest: "{{ autoshutdown_scripts_path }}/autoshutdown.sh"
     owner: root
     group: root

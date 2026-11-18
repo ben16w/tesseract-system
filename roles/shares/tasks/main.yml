@@ -30,7 +30,7 @@
   notify: restart autofs
   when: shares_mounts | length > 0
   ansible.builtin.template:
-    src: templates/auto.tesseract.j2
+    src: auto.tesseract.j2
     dest: /etc/auto.tesseract
     owner: root
     group: root

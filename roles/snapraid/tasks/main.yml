@@ -100,7 +100,7 @@
 
     - name: Template snapraid configuration file.
       ansible.builtin.template:
-        src: templates/snapraid.conf.j2
+        src: snapraid.conf.j2
         dest: /etc/snapraid.conf
         owner: root
         group: root
@@ -108,7 +108,7 @@
 
     - name: Template snapraid-runner configuration file.
       ansible.builtin.template:
-        src: templates/snapraid-runner.conf.j2
+        src: snapraid-runner.conf.j2
         dest: /opt/snapraid-runner/snapraid-runner.conf
         owner: root
         group: root
