@@ -4,3 +4,11 @@
   vars_files:
     - ../../defaults/main.yml
   tasks:
+    - name: Check purged packages are absent.
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: absent
+      check_mode: true
+      register: clean_purge_check
+      failed_when: clean_purge_check is changed
+      loop: "{{ clean_purge_packages }}"

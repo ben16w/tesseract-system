@@ -1,5 +1,20 @@
 ---
 
+- name: Assert that purge package list is valid.
+  ansible.builtin.assert:
+    that:
+      - clean_purge_packages is iterable
+      - clean_purge_packages is not string
+      - clean_purge_packages is not mapping
+
+- name: Purge unwanted packages.
+  when: clean_purge_packages | length > 0
+  ansible.builtin.apt:
+    name: "{{ clean_purge_packages }}"
+    state: absent
+    purge: true
+    autoremove: true
+
 - name: Clean apt cache.
   ansible.builtin.apt:
     autoclean: true

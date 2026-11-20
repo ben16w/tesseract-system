@@ -1,3 +1,6 @@
 ---
 
 clean_log_age_days: 30
+
+clean_purge_packages:
+  - snapd
