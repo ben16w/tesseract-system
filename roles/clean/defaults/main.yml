@@ -1,6 +1,7 @@
 ---
 
 clean_log_age_days: 30
+clean_journal_max_size: 500M
 
 clean_purge_packages:
   - snapd

@@ -17,7 +17,7 @@
 
 - name: Clean apt cache.
   ansible.builtin.apt:
-    autoclean: true
+    clean: true
     autoremove: true
     update_cache: false
 
@@ -40,7 +40,10 @@
 
 - name: Clean journal logs.
   ansible.builtin.command:
-    cmd: "journalctl --vacuum-time={{ clean_log_age_days }}d"
+    cmd: >-
+      journalctl
+      --vacuum-time={{ clean_log_age_days }}d
+      --vacuum-size={{ clean_journal_max_size }}
   changed_when: false
 
 - name: Find old log files.
@@ -62,6 +65,28 @@
     state: absent
   loop: "{{ old_logs.files }}"
 
+- name: Check for kopia log directory.
+  ansible.builtin.stat:
+    path: /var/log/kopia
+  register: clean_kopia_log_dir
+
+- name: Find old kopia log files.
+  when: clean_kopia_log_dir.stat.isdir is defined and clean_kopia_log_dir.stat.isdir
+  ansible.builtin.find:
+    paths:
+      - /var/log/kopia
+    age: "{{ clean_log_age_days }}d"
+    recurse: true
+    file_type: file
+  register: clean_kopia_logs
+
+- name: Delete old kopia log files.
+  when: clean_kopia_log_dir.stat.isdir is defined and clean_kopia_log_dir.stat.isdir
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ clean_kopia_logs.files }}"
+
 - name: Check if Docker is installed in /bin.
   ansible.builtin.stat:
     path: /bin/docker
@@ -73,7 +98,13 @@
   register: docker_bin_usr
 
 - name: Prune Docker system if installed.
+  when: docker_bin_bin.stat.exists or docker_bin_usr.stat.exists
   ansible.builtin.command:
     cmd: docker system prune -af
+  changed_when: false
+
+- name: Prune Docker build cache if installed.
   when: docker_bin_bin.stat.exists or docker_bin_usr.stat.exists
+  ansible.builtin.command:
+    cmd: docker builder prune -af
   changed_when: false
