@@ -65,28 +65,6 @@
     state: absent
   loop: "{{ old_logs.files }}"
 
-- name: Check for kopia log directory.
-  ansible.builtin.stat:
-    path: /var/log/kopia
-  register: clean_kopia_log_dir
-
-- name: Find old kopia log files.
-  when: clean_kopia_log_dir.stat.isdir is defined and clean_kopia_log_dir.stat.isdir
-  ansible.builtin.find:
-    paths:
-      - /var/log/kopia
-    age: "{{ clean_log_age_days }}d"
-    recurse: true
-    file_type: file
-  register: clean_kopia_logs
-
-- name: Delete old kopia log files.
-  when: clean_kopia_log_dir.stat.isdir is defined and clean_kopia_log_dir.stat.isdir
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: absent
-  loop: "{{ clean_kopia_logs.files }}"
-
 - name: Check if Docker is installed in /bin.
   ansible.builtin.stat:
     path: /bin/docker
