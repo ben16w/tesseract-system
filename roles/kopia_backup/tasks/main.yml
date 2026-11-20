@@ -107,6 +107,30 @@
       --key={{ kopia_backup_bb_key }}
       --password={{ kopia_backup_password }}
 
+- name: Assert that content cache size limit is valid.
+  ansible.builtin.assert:
+    that:
+      - kopia_backup_content_cache_size_limit_mb is number
+      - kopia_backup_content_cache_size_limit_mb | int > 0
+
+- name: Assert that metadata cache size limit is valid.
+  when: kopia_backup_metadata_cache_size_limit_mb is not none
+  ansible.builtin.assert:
+    that:
+      - kopia_backup_metadata_cache_size_limit_mb is number
+      - kopia_backup_metadata_cache_size_limit_mb | int > 0
+
+- name: Set Kopia cache size limits.
+  when: kopia_backup_paths | length > 0
+  ansible.builtin.command:
+    cmd: >
+      kopia cache set
+      --content-cache-size-limit-mb={{ kopia_backup_content_cache_size_limit_mb | int }}
+      {% if kopia_backup_metadata_cache_size_limit_mb is not none %}
+      --metadata-cache-size-limit-mb={{ kopia_backup_metadata_cache_size_limit_mb | int }}
+      {% endif %}
+  changed_when: true
+
 - name: Set Kopia policies for paths.
   ansible.builtin.command:
     cmd: >

@@ -28,6 +28,9 @@ kopia_backup_verify_enabled: true
 kopia_backup_verify_percent: "0.1"
 kopia_backup_parallelism: 10
 
+kopia_backup_content_cache_size_limit_mb: 1024
+kopia_backup_metadata_cache_size_limit_mb: ~
+
 kopia_backup_ignored: []
 
 kopia_backup_paths: []
