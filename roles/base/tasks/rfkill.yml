@@ -1,0 +1,53 @@
+---
+
+- name: Install rfkill.
+  when: base_rfkill_wireless | bool
+  ansible.builtin.apt:
+    name: rfkill
+    state: present
+
+- name: Deploy wireless rfkill systemd unit.
+  when: base_rfkill_wireless | bool
+  ansible.builtin.copy:
+    src: tesseract-rfkill.service
+    dest: /etc/systemd/system/tesseract-rfkill.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload tesseract-rfkill
+
+- name: Enable and start wireless rfkill service.
+  when: base_rfkill_wireless | bool
+  ansible.builtin.systemd:
+    name: tesseract-rfkill
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Check if wireless rfkill unit exists.
+  when: not (base_rfkill_wireless | bool)
+  ansible.builtin.stat:
+    path: /etc/systemd/system/tesseract-rfkill.service
+  register: base_rfkill_unit
+
+- name: Stop and disable wireless rfkill service.
+  when: not (base_rfkill_wireless | bool) and base_rfkill_unit.stat.exists
+  ansible.builtin.systemd:
+    name: tesseract-rfkill
+    state: stopped
+    enabled: false
+
+- name: Remove wireless rfkill systemd unit.
+  when: not (base_rfkill_wireless | bool) and base_rfkill_unit.stat.exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/tesseract-rfkill.service
+    state: absent
+  notify: reload systemd
+
+- name: Unblock WiFi and Bluetooth radios.
+  when: not (base_rfkill_wireless | bool)
+  ansible.builtin.command:
+    cmd: rfkill unblock wifi bluetooth
+  register: base_rfkill_unblock
+  changed_when: base_rfkill_unblock.rc == 0
+  failed_when: false

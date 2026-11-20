@@ -20,3 +20,5 @@ base_fail2ban_ignoreip:
   - 127.0.0.1/8
   - ::1
   - 100.64.0.0/10
+
+base_rfkill_wireless: true

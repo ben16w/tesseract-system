@@ -1,0 +1,14 @@
+[Unit]
+Description=Block WiFi and Bluetooth radios
+DefaultDependencies=no
+After=systemd-rfkill.service sys-devices-virtual-misc-rfkill.mount
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/rfkill block wifi bluetooth
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

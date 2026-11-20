@@ -66,6 +66,9 @@
 - name: Configure fail2ban.
   ansible.builtin.import_tasks: fail2ban.yml
 
+- name: Configure wireless rfkill.
+  ansible.builtin.import_tasks: rfkill.yml
+
 - name: Configure unattended-upgrades.
   ansible.builtin.import_tasks: unattended_upgrades.yml
 

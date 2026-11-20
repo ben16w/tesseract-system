@@ -29,3 +29,11 @@
       ansible.builtin.command:
         cmd: sshd -t
       changed_when: false
+
+    - name: Check tesseract-rfkill service is enabled and active.
+      ansible.builtin.systemd:
+        name: tesseract-rfkill
+      register: base_rfkill_svc
+      failed_when: >-
+        base_rfkill_svc.status.ActiveState != 'active'
+        or base_rfkill_svc.status.UnitFileState != 'enabled'
