@@ -6,9 +6,11 @@
       - tesseract_email_port is not none
       - tesseract_email_username is not none
       - tesseract_email_password is not none
-      - kopia_backup_bb_key_id is not none
-      - kopia_backup_bb_key is not none
-      - kopia_backup_bb_bucket is not none
+      - kopia_backup_s3_access_key is not none
+      - kopia_backup_s3_secret_key is not none
+      - kopia_backup_s3_bucket is not none
+      - kopia_backup_s3_endpoint is not none
+      - kopia_backup_s3_region is not none
       - kopia_backup_password is not none
 
 - name: Install python3-debian for deb822_repository.
@@ -101,10 +103,12 @@
   no_log: true
   ansible.builtin.command:
     cmd: >
-      kopia repository connect b2
-      --bucket={{ kopia_backup_bb_bucket }}
-      --key-id={{ kopia_backup_bb_key_id }}
-      --key={{ kopia_backup_bb_key }}
+      kopia repository connect s3
+      --bucket={{ kopia_backup_s3_bucket }}
+      --endpoint={{ kopia_backup_s3_endpoint }}
+      --region={{ kopia_backup_s3_region }}
+      --access-key={{ kopia_backup_s3_access_key }}
+      --secret-access-key={{ kopia_backup_s3_secret_key }}
       --password={{ kopia_backup_password }}
 
 - name: Set Kopia policies for paths.

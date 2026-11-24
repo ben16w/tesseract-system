@@ -19,9 +19,11 @@ kopia_backup_minute: 0
 kopia_backup_hour: 0
 kopia_backup_day: "*"
 
-kopia_backup_bb_key_id: ~
-kopia_backup_bb_key: ~
-kopia_backup_bb_bucket: ~
+kopia_backup_s3_access_key: ~
+kopia_backup_s3_secret_key: ~
+kopia_backup_s3_bucket: ~
+kopia_backup_s3_endpoint: ~
+kopia_backup_s3_region: ~
 kopia_backup_password: ~
 
 kopia_backup_verify_enabled: true
