@@ -28,14 +28,20 @@
     group: root
     mode: '0755'
 
-- name: Check if snapraid is installed.
-  ansible.builtin.stat:
-    path: /usr/local/bin/snapraid
-  register: is_snapraid_installed
+- name: Read installed Snapraid version.
+  ansible.builtin.command: snapraid --version
+  register: snapraid_installed_version
+  failed_when: false
+  changed_when: false
 
-- name: When snapraid is not installed.
-  when: not is_snapraid_installed.stat.exists
+- name: Download and install Snapraid if required.
+  when: snapraid_installed_version.rc != 0 or snapraid_version not in snapraid_installed_version.stdout
   block:
+
+    - name: Remove previous Snapraid build directory.
+      ansible.builtin.file:
+        path: /tmp/snapraid-{{ snapraid_version }}
+        state: absent
 
     - name: Download and extract snapraid archive into tmp directory.
       ansible.builtin.unarchive:
@@ -43,7 +49,6 @@
           releases/download/v{{ snapraid_version }}/snapraid-{{ snapraid_version }}.tar.gz"
         dest: /tmp
         remote_src: true
-        creates: /tmp/snapraid-{{ snapraid_version }}
       register: download_snapraid
       retries: 5
       delay: 10
@@ -53,13 +58,13 @@
       ansible.builtin.command:
         cmd: ./configure
         chdir: /tmp/snapraid-{{ snapraid_version }}
-        creates: /tmp/snapraid-{{ snapraid_version }}/Makefile
+      changed_when: true
 
     - name: Run make Snapraid.
       ansible.builtin.command:
         cmd: make
         chdir: /tmp/snapraid-{{ snapraid_version }}
-        creates: /tmp/snapraid-{{ snapraid_version }}/snapraid
+      changed_when: true
 
     # The SnapRAID upstream test suite is unreliable in container
     # environments on Debian (make check fails with parity file I/O
@@ -74,7 +79,7 @@
       ansible.builtin.command:
         cmd: make install
         chdir: /tmp/snapraid-{{ snapraid_version }}
-        creates: /usr/local/bin/snapraid
+      changed_when: true
 
 - name: Ensure snapraid-runner directory exists.
   ansible.builtin.file:
