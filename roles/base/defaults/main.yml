@@ -16,6 +16,7 @@ base_timezone: Europe/London
 base_fail2ban_bantime: 1h
 base_fail2ban_findtime: 10m
 base_fail2ban_maxretry: 5
+base_fail2ban_backend: systemd
 base_fail2ban_ignoreip:
   - 127.0.0.1/8
   - ::1

@@ -7,4 +7,4 @@ ignoreip = {{ base_fail2ban_ignoreip | join(' ') }}
 
 [sshd]
 enabled = true
-backend = auto
+backend = {{ base_fail2ban_backend }}
